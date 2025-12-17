@@ -5,6 +5,15 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useUser, useDoc } from '@/firebase';
+import type { User as UserData } from '@/lib/types';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { UpdateProfileForm } from '@/components/settings/update-profile-form';
+import { SignOutButton } from '@/components/settings/signout-button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Card,
   CardContent,
@@ -12,40 +21,40 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useUser, useAuth } from '@/firebase';
-import { User as UserIcon, Lock, LogOut, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { UpdateProfileForm } from '@/components/settings/update-profile-form';
-import { SignOutButton } from '@/components/settings/signout-button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Lock } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'avatar1');
 
 export default function SettingsPage() {
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
+  const { data: userProfile, loading: profileLoading } = useDoc<UserData>(
+    user ? `users/${user.uid}` : null
+  );
+
+  const loading = userLoading || profileLoading;
 
   if (loading) {
     return (
-        <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
-             <div className="flex items-center gap-4">
-                <Skeleton className="h-10 w-10" />
-                <Skeleton className="h-8 w-48" />
-             </div>
-             <div className="mx-auto grid w-full max-w-2xl gap-6 mt-4">
-                <div className="flex items-center gap-4">
-                    <Skeleton className="h-16 w-16 rounded-full" />
-                    <div>
-                        <Skeleton className="h-7 w-32" />
-                        <Skeleton className="mt-2 h-4 w-48" />
-                    </div>
-                </div>
-                <Skeleton className="h-64 w-full" />
-                <Skeleton className="h-48 w-full" />
-             </div>
+      <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <Skeleton className="h-8 w-48" />
         </div>
-    )
+        <div className="mx-auto grid w-full max-w-2xl gap-6 mt-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <div>
+              <Skeleton className="h-7 w-32" />
+              <Skeleton className="mt-2 h-4 w-48" />
+            </div>
+          </div>
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -76,19 +85,25 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <UpdateProfileForm />
+          <UpdateProfileForm userProfile={userProfile} />
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" /> Account Security</CardTitle>
-              <CardDescription>Manage your password and log out from your account.</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5" /> Account Security
+              </CardTitle>
+              <CardDescription>
+                Manage your password and log out from your account.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">Click the button below to sign out of your account on this device.</p>
-                <SignOutButton />
+              <p className="text-sm text-muted-foreground mb-4">
+                Click the button below to sign out of your account on this
+                device.
+              </p>
+              <SignOutButton />
             </CardContent>
           </Card>
-
         </div>
       </main>
     </div>

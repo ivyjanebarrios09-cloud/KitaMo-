@@ -2,6 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type User = {
   id: string;
+  uid: string; // Add uid to match firestore doc
   name: string;
   email: string;
   avatarUrl: string;

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth, useFirestore, useUser } from '@/firebase';
+import type { User as UserData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,7 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Form,
@@ -26,12 +27,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserIcon } from 'lucide-react';
+import React from 'react';
 
 const formSchema = z.object({
   displayName: z.string().min(1, 'Full name is required.'),
 });
 
-export function UpdateProfileForm() {
+interface UpdateProfileFormProps {
+  userProfile: UserData | null;
+}
+
+export function UpdateProfileForm({ userProfile }: UpdateProfileFormProps) {
   const auth = useAuth();
   const db = useFirestore();
   const { user } = useUser();
@@ -43,6 +49,12 @@ export function UpdateProfileForm() {
       displayName: user?.displayName || '',
     },
   });
+
+  React.useEffect(() => {
+    if (user?.displayName) {
+      form.reset({ displayName: user.displayName });
+    }
+  }, [user, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) return;
@@ -57,14 +69,13 @@ export function UpdateProfileForm() {
       const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
         displayName: values.displayName,
+        name: values.displayName, // Also update the 'name' field
       });
 
       toast({
         title: 'Success!',
         description: 'Your profile has been updated.',
       });
-      // Force a re-render or page reload if needed to show updated name in header, etc.
-      // For now, the local state of the form will be updated.
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
@@ -80,9 +91,11 @@ export function UpdateProfileForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><UserIcon className="h-5 w-5" /> Personal Information</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <UserIcon className="h-5 w-5" /> Personal Information
+            </CardTitle>
             <CardDescription>
-              Update your display name. Your email cannot be changed.
+              Update your display name. Your email and role cannot be changed.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -99,15 +112,35 @@ export function UpdateProfileForm() {
                 </FormItem>
               )}
             />
-             <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <Input value={user?.email || ''} disabled />
-                 <p className="text-sm text-muted-foreground">You cannot change your email address.</p>
+            <FormItem>
+              <FormLabel>Email Address</FormLabel>
+              <Input value={user?.email || ''} disabled />
+              <p className="text-sm text-muted-foreground">
+                You cannot change your email address.
+              </p>
+            </FormItem>
+            <FormItem>
+              <FormLabel>Role</FormLabel>
+              <Input
+                value={
+                  userProfile?.role
+                    ? userProfile.role.charAt(0).toUpperCase() +
+                      userProfile.role.slice(1)
+                    : ''
+                }
+                disabled
+              />
+              <p className="text-sm text-muted-foreground">
+                Your role cannot be changed.
+              </p>
             </FormItem>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
-            <Button type="submit" disabled={form.formState.isSubmitting || !form.formState.isDirty}>
-                {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting || !form.formState.isDirty}
+            >
+              {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </CardFooter>
         </form>
