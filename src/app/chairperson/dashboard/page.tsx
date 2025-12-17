@@ -6,8 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ArrowRight, Users, Settings } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Users, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const navigationCards = [
   {
@@ -33,12 +35,21 @@ export default function ChairpersonDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back! Select an option below to get started.
-        </p>
+      <div className="flex items-center gap-4">
+        <Link href="/">
+          <Button variant="outline" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Select an option below to get started.
+          </p>
+        </div>
       </div>
+
 
       <div className="grid gap-6 md:grid-cols-2">
         {navigationCards.map((card) => (
