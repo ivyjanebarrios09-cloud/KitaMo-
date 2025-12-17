@@ -2,47 +2,43 @@
 
 import Link from 'next/link';
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StudentRoomDetails } from '@/components/student/room-details';
-import { useDoc } from '@/firebase';
+import { useDoc, useUser as useAuthUser } from '@/firebase';
 import type { Room, User } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { doc, getDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 
 function RoomHeaderSkeleton() {
     return (
         <div className="flex items-center gap-4">
-            <Skeleton className="h-7 w-7 rounded-full" />
+            <Skeleton className="h-7 w-7" />
             <Skeleton className="h-6 w-48" />
             <Skeleton className="ml-auto h-6 w-32" />
         </div>
     )
 }
 
-// This page has a fundamental issue: to view a room, we need to know the chairperson's ID.
-// The room ID alone is not enough with the new nested structure.
-// This will require a larger refactor to how students access rooms.
-// For now, it will likely fail to load data correctly.
-export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
-  const db = useFirestore();
-  const [room, setRoom] = React.useState<Room | null>(null);
-  const [chairperson, setChairperson] = React.useState<User | null>(null);
-  const [loading, setLoading] = React.useState(true);
+export default function StudentRoomPage({ params }: { params: { id: string } }) {
+  const { id: roomId } = params;
+  const searchParams = useSearchParams();
+  const chairpersonId = searchParams.get('chairpersonId');
+  
+  const { user: studentUser, loading: studentLoading } = useAuthUser();
 
-  React.useEffect(() => {
-    // This is not a scalable way to find a room.
-    // It requires knowing the chairpersonId ahead of time.
-    // This is a placeholder to demonstrate the structural issue.
-    // A real app would likely get the chairpersonId from the room listing page
-    // or from a 'joinedRooms' subcollection on the student's user doc.
-    console.error("This page needs a way to find the chairperson's ID for the given room ID.");
-    setLoading(false);
-  }, [id, db]);
+  // Fetch the room document using the chairpersonId and roomId
+  const { data: room, loading: roomLoading } = useDoc<Room>(
+    chairpersonId ? `users/${chairpersonId}/rooms/${roomId}` : null
+  );
 
+  // Fetch the chairperson's user profile
+  const { data: chairperson, loading: chairpersonLoading } = useDoc<User>(
+    chairpersonId ? `users/${chairpersonId}` : null
+  );
+
+  const loading = roomLoading || chairpersonLoading || studentLoading;
 
   if (loading) {
       return (
@@ -57,12 +53,12 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
       )
   }
 
-  if (!room) {
+  if (!room || !chairpersonId) {
     return (
        <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
         <div className="mx-auto grid w-full max-w-6xl gap-2 text-center">
             <h1 className="text-2xl font-bold">Room not found</h1>
-            <p className="text-muted-foreground">This room may not exist, or we could not determine its owner. This page requires fixing to work with the new data structure.</p>
+            <p className="text-muted-foreground">This room may not exist or the link is incomplete. Please ensure you have the correct link from the 'My Rooms' page.</p>
              <div className="mt-4">
                  <Link href="/student/rooms">
                     <Button variant="outline">Go back to My Rooms</Button>
@@ -91,7 +87,7 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
             Managed by {chairperson?.name || '...'}
           </Badge>
         </div>
-        <StudentRoomDetails room={room} roomId={id} />
+        {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
       </div>
     </div>
   );
