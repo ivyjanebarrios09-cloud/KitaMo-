@@ -5,12 +5,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  addDoc,
-  collection,
-  query,
-  where,
-  getDocs,
+  doc,
+  getDoc,
   serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -68,12 +66,11 @@ export function JoinRoomButton() {
     }
 
     try {
-      // Find the room with the given code
-      const roomsRef = collection(db, 'rooms');
-      const q = query(roomsRef, where('code', '==', values.code.toUpperCase()));
-      const querySnapshot = await getDocs(q);
+      // 1. Look up the room by the join code
+      const roomCodeRef = doc(db, 'roomCodes', values.code.toUpperCase());
+      const roomCodeSnap = await getDoc(roomCodeRef);
 
-      if (querySnapshot.empty) {
+      if (!roomCodeSnap.exists()) {
         toast({
           variant: 'destructive',
           title: 'Invalid Code',
@@ -82,16 +79,18 @@ export function JoinRoomButton() {
         return;
       }
 
-      const roomDoc = querySnapshot.docs[0];
-      const roomId = roomDoc.id;
-      const roomName = roomDoc.data().name;
+      const { chairpersonId, roomId } = roomCodeSnap.data();
 
-      // Check if user is already a member
-      const membersRef = collection(db, 'roomMembers');
-      const memberQuery = query(membersRef, where('roomId', '==', roomId), where('userId', '==', user.uid));
-      const memberSnapshot = await getDocs(memberQuery);
+      // 2. Get the room details to show the name in the toast
+      const roomRef = doc(db, 'users', chairpersonId, 'rooms', roomId);
+      const roomSnap = await getDoc(roomRef);
+      const roomName = roomSnap.exists() ? roomSnap.data().name : 'the room';
+      
+      // 3. Add the student to the room's members subcollection
+      const memberRef = doc(db, 'users', chairpersonId, 'rooms', roomId, 'members', user.uid);
+      const memberSnap = await getDoc(memberRef);
 
-      if (!memberSnapshot.empty) {
+      if (memberSnap.exists()) {
         toast({
           title: 'Already a Member',
           description: `You are already a member of "${roomName}".`,
@@ -101,19 +100,25 @@ export function JoinRoomButton() {
         return;
       }
 
-      // Add the user to the roomMembers collection
-      const newMember = {
-        roomId: roomId,
+      const newMemberData = {
         userId: user.uid,
-        role: 'student', // Assuming the user joining is always a student
+        role: 'student',
         joinedAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, 'roomMembers'), newMember);
+      const batch = writeBatch(db);
+      batch.set(memberRef, newMemberData);
+
+      // Optional: you might want to create a reference in the student's user doc
+      // to easily find all rooms they are a member of.
+      // const studentRoomRef = doc(db, 'users', user.uid, 'joinedRooms', roomId);
+      // batch.set(studentRoomRef, { roomId, chairpersonId });
+
+      await batch.commit();
 
       toast({
         title: 'Success!',
-        description: `You have successfully joined the room: "${roomName}".`,
+        description: `You have successfully joined: "${roomName}".`,
       });
       setOpen(false);
       form.reset();
@@ -121,7 +126,7 @@ export function JoinRoomButton() {
     } catch (error: any) {
       if (error.code === 'permission-denied') {
         const permissionError = new FirestorePermissionError({
-          path: 'roomMembers',
+          path: 'roomMembers or roomCodes', // This could fail on read or write
           operation: 'create',
         });
         errorEmitter.emit('permission-error', permissionError);

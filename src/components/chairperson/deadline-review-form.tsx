@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Wand2 } from 'lucide-react';
 import { addDoc, collection } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +43,7 @@ export function DeadlineReviewForm({ roomId }: { roomId: string }) {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const { toast } = useToast();
   const db = useFirestore();
+  const { user } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,13 +90,16 @@ export function DeadlineReviewForm({ roomId }: { roomId: string }) {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) {
+        toast({ variant: "destructive", title: "Not authenticated" });
+        return;
+    }
     try {
       const deadlineData = {
-        roomId,
         ...values,
         announcement: reviewedText || values.announcement,
       };
-      await addDoc(collection(db, 'deadlines'), deadlineData);
+      await addDoc(collection(db, 'users', user.uid, 'rooms', roomId, 'deadlines'), deadlineData);
       toast({
         title: 'Success!',
         description: 'The new fund deadline has been posted.',

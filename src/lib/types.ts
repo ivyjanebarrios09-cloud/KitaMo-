@@ -13,13 +13,13 @@ export type Room = {
   name: string;
   description: string;
   code: string;
-  chairpersonId: string;
+  // chairpersonId is no longer needed as the room is nested under the user
   createdAt: Timestamp;
 };
 
 export type RoomMember = {
     id: string;
-    roomId: string;
+    // roomId is the document ID, not a field
     userId: string;
     role: 'chairperson' | 'student';
     joinedAt: Timestamp;
@@ -27,7 +27,7 @@ export type RoomMember = {
 
 export type Expense = {
   id: string;
-  roomId: string;
+  // roomId is implicit from the path
   title: string;
   description: string;
   amount: number;
@@ -37,7 +37,7 @@ export type Expense = {
 
 export type FundDeadline = {
   id:string;
-  roomId: string;
+  // roomId is implicit from the path
   title: string;
   amountPerStudent: number;
   dueDate: string;
@@ -47,7 +47,7 @@ export type FundDeadline = {
 
 export type Payment = {
     id: string;
-    roomId: string;
+    // roomId is implicit from the path
     userId: string;
     amount: number;
     date: string;

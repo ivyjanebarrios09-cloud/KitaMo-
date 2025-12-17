@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { useDoc } from '@/firebase';
+import { useDoc, useUser } from '@/firebase';
 import type { Room } from '@/lib/types';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,10 @@ function RoomHeaderSkeleton() {
 
 export default function ChairpersonRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
-  const { data: room, loading } = useDoc<Room>(`rooms/${id}`);
+  const { user, loading: userLoading } = useUser();
+  const { data: room, loading: roomLoading } = useDoc<Room>(user ? `users/${user.uid}/rooms/${id}` : null);
+
+  const loading = userLoading || roomLoading;
 
   if (loading) {
       return (

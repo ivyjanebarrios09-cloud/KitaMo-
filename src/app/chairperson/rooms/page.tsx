@@ -1,6 +1,6 @@
 'use client';
 import { useMemo } from 'react';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Room } from '@/lib/types';
 import {
@@ -71,7 +71,8 @@ export default function ChairpersonRoomsPage() {
 
   const roomsQuery = useMemo(() => {
     if (!user) return null;
-    return query(collection(db, 'rooms'), where('chairpersonId', '==', user.uid));
+    // Query the 'rooms' subcollection under the current user.
+    return query(collection(db, 'users', user.uid, 'rooms'));
   }, [db, user]);
 
   const { data: rooms, loading: roomsLoading, error } = useCollection<Room>(roomsQuery);

@@ -44,10 +44,9 @@ const formSchema = z.object({
   date: z.string().min(1, 'Date is required.'),
 });
 
-function AddExpenseForm({ roomId }: { roomId: string }) {
+function AddExpenseForm({ roomId, chairpersonId }: { roomId: string, chairpersonId: string }) {
   const { toast } = useToast();
   const db = useFirestore();
-  const { user } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,16 +59,13 @@ function AddExpenseForm({ roomId }: { roomId: string }) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) return;
-
     const newExpense = {
       ...values,
-      roomId,
-      createdBy: user.uid,
+      createdBy: chairpersonId,
     };
 
     try {
-      await addDoc(collection(db, 'expenses'), newExpense);
+      await addDoc(collection(db, 'users', chairpersonId, 'rooms', roomId, 'expenses'), newExpense);
       toast({
         title: 'Success!',
         description: `The expense "${values.title}" has been added.`,
@@ -163,11 +159,12 @@ function AddExpenseForm({ roomId }: { roomId: string }) {
   );
 }
 
-function ExpensesList({ roomId }: { roomId: string }) {
+function ExpensesList({ roomId, chairpersonId }: { roomId: string, chairpersonId: string }) {
     const db = useFirestore();
     const expensesQuery = useMemo(() => {
-        return query(collection(db, 'expenses'), where('roomId', '==', roomId));
-    }, [db, roomId]);
+        if (!chairpersonId) return null;
+        return query(collection(db, 'users', chairpersonId, 'rooms', roomId, 'expenses'));
+    }, [db, roomId, chairpersonId]);
 
     const { data: expenses, loading } = useCollection<Expense>(expensesQuery);
 
@@ -207,6 +204,9 @@ function ExpensesList({ roomId }: { roomId: string }) {
 }
 
 export function ExpensesTab({ roomId }: { roomId: string }) {
+  const { user } = useUser();
+  if (!user) return null;
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
@@ -251,8 +251,8 @@ export function ExpensesTab({ roomId }: { roomId: string }) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <AddExpenseForm roomId={roomId} />
-        <ExpensesList roomId={roomId} />
+        <AddExpenseForm roomId={roomId} chairpersonId={user.uid} />
+        <ExpensesList roomId={roomId} chairpersonId={user.uid} />
       </div>
     </div>
   );

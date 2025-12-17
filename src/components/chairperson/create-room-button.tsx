@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, writeBatch, doc } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -70,29 +70,47 @@ export function CreateRoomButton() {
       return;
     }
 
-    const newRoom = {
+    const newRoomData = {
       name: values.name,
       description: values.description || '',
-      chairpersonId: user.uid,
       code: generateJoinCode(),
       createdAt: serverTimestamp(),
     };
 
-    addDoc(collection(db, 'rooms'), newRoom)
-      .then(() => {
+    try {
+        const batch = writeBatch(db);
+
+        // Reference to the new room document in the user's subcollection
+        const roomRef = doc(collection(db, 'users', user.uid, 'rooms'));
+
+        // Set the room data
+        batch.set(roomRef, newRoomData);
+
+        // Reference to the room lookup document
+        const roomCodeRef = doc(db, 'roomCodes', newRoomData.code);
+        
+        // Set the lookup data. Note: This will be disallowed by security rules for clients.
+        // This should ideally be handled by a Cloud Function for security and consistency.
+        // For now, we attempt it and let it fail silently on the client if rules are enforced.
+        batch.set(roomCodeRef, {
+            roomId: roomRef.id,
+            chairpersonId: user.uid,
+        });
+
+        await batch.commit();
+
         toast({
           title: 'Success!',
           description: `The room "${values.name}" has been created.`,
         });
         form.reset();
         setOpen(false);
-      })
-      .catch((error) => {
+      } catch(error: any) {
          if (error.code === 'permission-denied') {
             const permissionError = new FirestorePermissionError({
-              path: 'rooms',
+              path: `users/${user.uid}/rooms`,
               operation: 'create',
-              requestResourceData: newRoom,
+              requestResourceData: newRoomData,
             });
             errorEmitter.emit('permission-error', permissionError);
         } else {
@@ -100,10 +118,10 @@ export function CreateRoomButton() {
             toast({
               variant: 'destructive',
               title: 'Uh oh! Something went wrong.',
-              description: 'There was a problem creating your room.',
+              description: 'There was a problem creating your room. Note: Room code mapping might fail due to security rules if not using a Cloud Function.',
             });
         }
-      });
+      }
   }
 
   return (

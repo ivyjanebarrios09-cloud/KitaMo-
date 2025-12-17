@@ -9,56 +9,44 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isChairperson() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'chairperson';
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    function isRoomMember(roomId) {
-      // This is a placeholder. We need to query the roomMembers collection.
-      // Firestore security rules do not allow querying collections directly in rules.
-      // This logic will need to be handled client-side or with more complex rules.
-      // For now, we'll allow any authenticated user to be a "member" for reads.
-      return isSignedIn();
-    }
-    
-    function isRoomChairperson(roomId) {
-        return get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
-    }
-
-    // Users can read and write their own user profile
+    // Users can read their own profile, anyone can read other profiles.
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-    }
-
-    match /rooms/{roomId} {
-        // Allow listing rooms for authenticated users who are querying by chairpersonId
-        allow list: if request.auth != null && request.query.where[0].fieldPath == 'chairpersonId' && request.query.where[0].string_value == request.auth.uid;
-
-        // Allow reading a single room if they are a member of the room
-        allow get: if request.auth != null && isRoomMember(roomId);
-
-        // Allow creating a room if the user is a chairperson and they are the owner
-        allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
-        
-        // Allow chairperson to update or delete the room
-        allow update, delete: if isSignedIn() && isRoomChairperson(roomId);
-    }
-
-
-    // Students can join a room if they are logged in.
-    match /roomMembers/{memberId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      // You may want to add rules for read, update, delete as needed
+      allow read, write: if isOwner(userId);
     }
     
-    // Chairperson of a room can create, read, update, and delete deadlines for that room.
-    match /deadlines/{deadlineId} {
-        allow read, write: if isSignedIn() && isRoomChairperson(request.resource.data.roomId);
+    // A user can manage the rooms within their own subcollection.
+    match /users/{userId}/rooms/{roomId} {
+       allow read, write: if isOwner(userId);
+
+       // Any signed in user can become a member of a room.
+       match /members/{memberId} {
+         allow create: if isSignedIn();
+         // Add read, update, delete as needed.
+       }
+       
+       // The owner of the room can manage expenses, deadlines, and payments.
+       match /expenses/{expenseId} {
+          allow read, write: if isOwner(userId);
+       }
+
+       match /deadlines/{deadlineId} {
+          allow read, write: if isOwner(userId);
+       }
+       
+       match /payments/{paymentId} {
+          allow read, write: if isOwner(userId);
+       }
     }
 
-    // Chairperson of a room can create, read, update, and delete expenses for that room.
-    match /expenses/{expenseId} {
-        allow read, write: if isSignedIn() && isRoomChairperson(request.resource.data.roomId);
+    // This collection is used to find rooms by their code. Anyone can read.
+    match /roomCodes/{code} {
+        allow read: if isSignedIn();
+        // Writes should only be done via a Cloud Function to ensure consistency.
+        allow write: if false; 
     }
   }
 }
