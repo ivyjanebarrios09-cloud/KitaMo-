@@ -5,6 +5,7 @@ import {
   CreditCard,
   ClipboardList,
   FileText,
+  AreaChart,
 } from 'lucide-react';
 import {
   Card,
@@ -32,6 +33,7 @@ import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-for
 import type { Room } from '@/lib/types';
 import { GenerateStatements } from './generate-statements';
 import { ExpensesTab } from './expenses-tab';
+import Link from 'next/link';
 
 export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
   return (
@@ -83,6 +85,28 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
             <CardContent>
               <div className="text-2xl font-bold">₱0.00</div>
               <p className="text-xs text-muted-foreground">No outstanding members</p>
+            </CardContent>
+          </Card>
+        </div>
+         <div className="mt-4">
+          <Card>
+            <CardHeader>
+                <CardTitle>Expense Analytics</CardTitle>
+                 <p className="text-sm text-muted-foreground">
+                    Visualize your room's spending patterns over time.
+                  </p>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex items-center gap-4">
+                     <AreaChart className="h-10 w-10 text-primary" />
+                     <div>
+                         <h3 className="font-semibold">Expense Graphs</h3>
+                         <p className="text-sm text-muted-foreground">View detailed monthly and yearly expense charts.</p>
+                     </div>
+                     <Link href={`/chairperson/rooms/${roomId}/graphs`} className="ml-auto">
+                        <Button>View Graphs</Button>
+                     </Link>
+                 </div>
             </CardContent>
           </Card>
         </div>
