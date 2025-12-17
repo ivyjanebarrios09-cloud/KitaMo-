@@ -19,23 +19,16 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-form';
 import type { Room } from '@/lib/types';
 import { GenerateStatements } from './generate-statements';
 import { ExpensesTab } from './expenses-tab';
 import Link from 'next/link';
+import { StudentsTab } from './students-tab';
+import { useUser } from '@/firebase';
 
 export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
+  const { user } = useUser();
   return (
     <Tabs defaultValue="dashboard">
       <TabsList className="grid w-full grid-cols-5">
@@ -118,29 +111,7 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
         <DeadlineReviewForm roomId={roomId} />
       </TabsContent>
       <TabsContent value="students">
-        <Card>
-          <CardHeader>
-            <CardTitle>Manage Students</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Amount Paid</TableHead>
-                  <TableHead>Remaining</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center">No students have joined this room yet.</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {user && <StudentsTab roomId={roomId} chairpersonId={user.uid} />}
       </TabsContent>
       <TabsContent value="statements">
         <GenerateStatements room={room} roomId={roomId} />
