@@ -29,6 +29,7 @@ import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { Expense, FundDeadline } from '@/lib/types';
 import { format } from 'date-fns';
+import { GeneratePersonalStatement } from './generate-personal-statement';
 
 interface StudentRoomDetailsProps {
     room: Room;
@@ -55,10 +56,11 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
 
   return (
     <Tabs defaultValue="dashboard">
-      <TabsList>
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="dashboard">My Dashboard</TabsTrigger>
         <TabsTrigger value="expenses">Expenses</TabsTrigger>
         <TabsTrigger value="deadlines">Deadlines</TabsTrigger>
+        <TabsTrigger value="statements">Statements</TabsTrigger>
       </TabsList>
       <TabsContent value="dashboard">
         <Card className="mt-4">
@@ -160,6 +162,9 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
              <p className="text-sm text-muted-foreground text-center pt-4">Payment functionality is coming soon.</p>
           </CardContent>
         </Card>
+      </TabsContent>
+       <TabsContent value="statements">
+        <GeneratePersonalStatement room={room} roomId={roomId} chairpersonId={chairpersonId} />
       </TabsContent>
     </Tabs>
   );
