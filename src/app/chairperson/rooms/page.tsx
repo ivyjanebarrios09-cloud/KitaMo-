@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { CreateRoomButton } from '@/components/chairperson/create-room-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileText, DollarSign, Users, ArrowRight } from 'lucide-react';
+import { FileText, DollarSign, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 function RoomCard({ room }: { room: Room }) {
@@ -32,7 +32,7 @@ function RoomCard({ room }: { room: Room }) {
             </div>
             <div className="flex items-center gap-1">
                 <DollarSign className="h-4 w-4" />
-                <span>$0.00</span>
+                <span>₱0.00</span>
             </div>
         </div>
         <Link href={`/chairperson/rooms/${room.id}`}>
@@ -81,12 +81,20 @@ export default function ChairpersonRoomsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Manage Rooms</h1>
-          <p className="text-muted-foreground">
-            Your financial rooms are listed below.
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <Link href="/chairperson/dashboard">
+            <Button variant="outline" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+            </Button>
+            </Link>
+            <div>
+            <h1 className="text-3xl font-bold">Manage Rooms</h1>
+            <p className="text-muted-foreground">
+                Your financial rooms are listed below.
+            </p>
+            </div>
         </div>
         <CreateRoomButton />
       </div>
