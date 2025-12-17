@@ -28,8 +28,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-form';
+import type { Room } from '@/lib/types';
 
-export function RoomDetails() {
+export function RoomDetails({ room }: { room: Room }) {
   return (
     <Tabs defaultValue="dashboard">
       <TabsList>

@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore';
 
 export type User = {
   id: string;
@@ -11,30 +12,47 @@ export type Room = {
   id: string;
   name: string;
   description: string;
-  joinCode: string;
+  code: string;
   chairpersonId: string;
+  createdAt: Timestamp;
 };
+
+export type RoomMember = {
+    id: string;
+    roomId: string;
+    userId: string;
+    role: 'chairperson' | 'student';
+    joinedAt: Timestamp;
+}
 
 export type Expense = {
   id: string;
+  roomId: string;
   title: string;
   description: string;
   amount: number;
   date: string;
-  roomId: string;
+  createdBy: string;
 };
 
 export type FundDeadline = {
-  id: string;
+  id:string;
+  roomId: string;
   title: string;
-  description: string;
   amountPerStudent: number;
   dueDate: string;
-  billingPeriod: string;
-  totalExpected: number;
-  remainingBalance: number;
-  roomId: string;
+  month: string;
 };
+
+
+export type Payment = {
+    id: string;
+    roomId: string;
+    userId: string;
+    amount: number;
+    date: string;
+    note?: string;
+}
 
 export type StudentPaymentDetails = {
   student: User;

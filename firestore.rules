@@ -17,5 +17,10 @@ service cloud.firestore {
        allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
        allow read, update: if request.auth != null && get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
     }
+
+     // Students can join a room if they are logged in.
+    match /roomMembers/{memberId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
   }
 }

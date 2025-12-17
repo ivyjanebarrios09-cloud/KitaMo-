@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 
 const navigationCards = [
   {
-    title: 'View My Rooms',
+    title: 'My Rooms',
     description: 'Check your payment status and deadlines for each room.',
     icon: <Users className="h-8 w-8 text-primary" />,
     href: '/student/rooms',

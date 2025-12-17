@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -72,9 +72,10 @@ export function CreateRoomButton() {
 
     const newRoom = {
       name: values.name,
-      description: values.description,
+      description: values.description || '',
       chairpersonId: user.uid,
-      joinCode: generateJoinCode(),
+      code: generateJoinCode(),
+      createdAt: serverTimestamp(),
     };
 
     addDoc(collection(db, 'rooms'), newRoom)

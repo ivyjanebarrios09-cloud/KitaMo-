@@ -1,0 +1,217 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["chairperson", "student"],
+          "description": "The user's role in the application."
+        }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "room": {
+      "title": "Room",
+      "description": "A financial room for a group.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the room."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the room."
+        },
+        "code": {
+          "type": "string",
+          "description": "A unique code to join the room."
+        },
+        "chairpersonId": {
+          "type": "string",
+          "description": "The UID of the chairperson who owns the room."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date and time the room was created."
+        }
+      },
+      "required": ["name", "code", "chairpersonId", "createdAt"]
+    },
+    "roomMember": {
+        "title": "Room Member",
+        "description": "A user who is a member of a room.",
+        "type": "object",
+        "properties": {
+            "roomId": {
+                "type": "string",
+                "description": "The ID of the room."
+            },
+            "userId": {
+                "type": "string",
+                "description": "The UID of the user."
+            },
+            "role": {
+                "type": "string",
+                "enum": ["chairperson", "student"],
+                "description": "The user's role in the room."
+            },
+            "joinedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The date and time the user joined the room."
+            }
+        },
+        "required": ["roomId", "userId", "role", "joinedAt"]
+    },
+    "expense": {
+        "title": "Expense",
+        "description": "An expense record for a room.",
+        "type": "object",
+        "properties": {
+            "roomId": {
+                "type": "string",
+                "description": "The ID of the room."
+            },
+            "title": {
+                "type": "string",
+                "description": "The title of the expense."
+            },
+            "description": {
+                "type": "string",
+                "description": "A description of the expense."
+            },
+            "amount": {
+                "type": "number",
+                "description": "The amount of the expense."
+            },
+            "date": {
+                "type": "string",
+                "format": "date",
+                "description": "The date of the expense."
+            },
+            "createdBy": {
+                "type": "string",
+                "description": "The UID of the user who created the expense."
+            }
+        },
+        "required": ["roomId", "title", "amount", "date", "createdBy"]
+    },
+    "deadline": {
+        "title": "Deadline",
+        "description": "A fund deadline for a room.",
+        "type": "object",
+        "properties": {
+            "roomId": {
+                "type": "string",
+                "description": "The ID of the room."
+            },
+            "title": {
+                "type": "string",
+                "description": "The title of the deadline."
+            },
+            "amountPerStudent": {
+                "type": "number",
+                "description": "The amount due per student."
+            },
+            "dueDate": {
+                "type": "string",
+                "format": "date",
+                "description": "The due date for the deadline."
+            },
+            "month": {
+                "type": "string",
+                "description": "The billing month for the deadline."
+            }
+        },
+        "required": ["roomId", "title", "amountPerStudent", "dueDate", "month"]
+    },
+    "payment": {
+        "title": "Payment",
+        "description": "A payment record from a user for a room.",
+        "type": "object",
+        "properties": {
+            "roomId": {
+                "type": "string",
+                "description": "The ID of the room."
+            },
+            "userId": {
+                "type": "string",
+                "description": "The UID of the user making the payment."
+            },
+            "amount": {
+                "type": "number",
+                "description": "The amount of the payment."
+            },
+            "date": {
+                "type": "string",
+                "format": "date",
+                "description": "The date of the payment."
+            },
+            "note": {
+                "type": "string",
+                "description": "An optional note for the payment."
+            }
+        },
+        "required": ["roomId", "userId", "amount", "date"]
+    }
+  },
+  "auth": {
+    "providers": ["email"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/user"
+      },
+      "description": "Stores user profile information."
+    },
+    "/rooms/{roomId}": {
+      "schema": {
+        "$ref": "#/entities/room"
+      },
+      "description": "Stores information about financial rooms."
+    },
+    "/roomMembers/{memberId}": {
+        "schema": {
+            "$ref": "#/entities/roomMember"
+        },
+        "description": "Stores the relationship between users and rooms."
+    },
+    "/expenses/{expenseId}": {
+        "schema": {
+            "$ref": "#/entities/expense"
+        },
+        "description": "Stores expense records for rooms."
+    },
+    "/deadlines/{deadlineId}": {
+        "schema": {
+            "$ref": "#/entities/deadline"
+        },
+        "description": "Stores fund deadline information for rooms."
+    },
+    "/payments/{paymentId}": {
+        "schema": {
+            "$ref": "#/entities/payment"
+        },
+        "description": "Stores payment records from users."
+    }
+  }
+}
