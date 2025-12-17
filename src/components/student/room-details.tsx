@@ -30,6 +30,7 @@ import { useCollection, useFirestore } from '@/firebase';
 import { Expense, FundDeadline } from '@/lib/types';
 import { format } from 'date-fns';
 import { GeneratePersonalStatement } from './generate-personal-statement';
+import { PiggyBank, Wallet } from 'lucide-react';
 
 interface StudentRoomDetailsProps {
     room: Room;
@@ -63,30 +64,46 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
         <TabsTrigger value="statements">Statements</TabsTrigger>
       </TabsList>
       <TabsContent value="dashboard">
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>Your Financial Summary</CardTitle>
-            <CardDescription>For &apos;{room.name}&apos;</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-                <h3 className="font-semibold">Current Balance</h3>
-                <p className="text-4xl font-bold text-red-600">₱0.00 <span className="text-lg font-normal text-muted-foreground">due</span></p>
-            </div>
-            <div className="space-y-2">
-                <div className="flex justify-between text-sm font-medium">
-                    <span>Payment Progress</span>
-                    <span>0%</span>
-                </div>
-                <Progress value={0} />
-                 <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Paid: ₱0.00</span>
-                    <span>Total: ₱0.00</span>
-                </div>
-            </div>
-             <p className="text-sm text-muted-foreground text-center pt-4">Real-time balance and payment tracking is coming soon.</p>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-3 mt-4">
+            <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Unpaid</CardTitle>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-red-600">₱0.00</div>
+                <p className="text-xs text-muted-foreground">
+                Your outstanding balance for this room.
+                </p>
+            </CardContent>
+            </Card>
+            <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
+                <PiggyBank className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">₱0.00</div>
+                <p className="text-xs text-muted-foreground">
+                Your total contributions to this room.
+                </p>
+            </CardContent>
+            </Card>
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                Overall Payment Progress
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Progress value={0} className="mb-2" />
+                <p className="text-xs text-muted-foreground text-center">
+                You&apos;ve paid 0% of your total dues.
+                </p>
+            </CardContent>
+            </Card>
+        </div>
+         <p className="text-sm text-muted-foreground text-center pt-6">Real-time balance and payment tracking is coming soon.</p>
       </TabsContent>
       <TabsContent value="expenses">
         <Card className="mt-4">
