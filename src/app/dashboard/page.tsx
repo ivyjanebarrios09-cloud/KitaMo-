@@ -11,7 +11,7 @@ export default function Dashboard() {
     <div className="flex h-screen w-full items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome to FinanceFlow</CardTitle>
+          <CardTitle>Welcome to KitaMo!</CardTitle>
           <CardDescription>
             In a real application, you would be automatically redirected based on your role.
             For now, please select your destination.

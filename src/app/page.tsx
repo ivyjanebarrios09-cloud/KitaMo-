@@ -58,7 +58,7 @@ export default function Home() {
             Financial Clarity for Your Student Group
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            FinanceFlow simplifies money management for clubs, teams, and organizations.
+            KitaMo! simplifies money management for clubs, teams, and organizations.
             Focus on your goals, not on spreadsheets.
           </p>
           <div className="mt-8 flex justify-center gap-4">
@@ -127,7 +127,7 @@ export default function Home() {
               Ready to Take Control?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-              Join hundreds of groups streamlining their finances with FinanceFlow.
+              Join hundreds of groups streamlining their finances with KitaMo!.
             </p>
             <div className="mt-8">
               <Button size="lg" asChild>
@@ -145,7 +145,7 @@ export default function Home() {
           <Logo className="h-5 w-auto" />
         </div>
         <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} FinanceFlow. All rights reserved.
+          &copy; {new Date().getFullYear()} KitaMo!. All rights reserved.
         </p>
       </footer>
     </div>

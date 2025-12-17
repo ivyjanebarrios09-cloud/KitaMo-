@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'FinanceFlow',
+  title: 'KitaMo!',
   description: 'Streamline financial management for your group.',
 };
 
