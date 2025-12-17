@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { addDoc, collection, query, where } from 'firebase/firestore';
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useDoc } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Wallet, PiggyBank, PlusCircle } from 'lucide-react';
+import { DollarSign, Wallet, PiggyBank, PlusCircle, User } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -34,7 +34,7 @@ import {
     TableHeader,
     TableRow,
   } from '@/components/ui/table';
-import type { Expense, Payment } from '@/lib/types';
+import type { Expense, Payment, User as UserData } from '@/lib/types';
 import { format } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
 
@@ -160,42 +160,59 @@ function AddExpenseForm({ roomId, chairpersonId }: { roomId: string, chairperson
   );
 }
 
-function ExpensesList({ roomId, chairpersonId }: { roomId: string, chairpersonId: string }) {
+function PaymentRow({ payment }: { payment: Payment }) {
+    const { data: user, loading } = useDoc<UserData>(payment.userId ? `users/${payment.userId}` : null);
+
+    if (loading) {
+        return (
+             <TableRow>
+                <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
+            </TableRow>
+        )
+    }
+    return (
+        <TableRow>
+            <TableCell>{user?.name || 'Unknown Student'}</TableCell>
+            <TableCell>{format(new Date(payment.date), 'PP')}</TableCell>
+            <TableCell>{payment.note}</TableCell>
+            <TableCell className="text-right">
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(payment.amount)}
+            </TableCell>
+        </TableRow>
+    )
+
+}
+
+function RecentPaymentsList({ roomId, chairpersonId }: { roomId: string, chairpersonId: string }) {
     const db = useFirestore();
-    const expensesQuery = useMemo(() => {
+    const paymentsQuery = useMemo(() => {
         if (!chairpersonId) return null;
-        return query(collection(db, 'users', chairpersonId, 'rooms', roomId, 'expenses'));
+        return query(collection(db, 'users', chairpersonId, 'rooms', roomId, 'payments'));
     }, [db, roomId, chairpersonId]);
 
-    const { data: expenses, loading } = useCollection<Expense>(expensesQuery);
-
+    const { data: payments, loading } = useCollection<Payment>(paymentsQuery);
+    
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Expense List</CardTitle>
+                <CardTitle>Recent Payments</CardTitle>
+                <CardDescription>A log of all payments received from students.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Table>
                     <TableHeader>
                         <TableRow>
+                        <TableHead>Student</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Description</TableHead>
+                        <TableHead>Note</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {loading && <TableRow><TableCell colSpan={4} className="text-center">Loading expenses...</TableCell></TableRow>}
-                        {!loading && expenses?.length === 0 && <TableRow><TableCell colSpan={4} className="text-center">No expenses posted yet.</TableCell></TableRow>}
-                        {expenses?.map((expense) => (
-                            <TableRow key={expense.id}>
-                                <TableCell>{format(new Date(expense.date), 'PP')}</TableCell>
-                                <TableCell className="font-medium">{expense.title}</TableCell>
-                                <TableCell>{expense.description}</TableCell>
-                                <TableCell className="text-right">
-                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(expense.amount)}
-                                </TableCell>
-                            </TableRow>
+                        {loading && <TableRow><TableCell colSpan={4} className="text-center">Loading payments...</TableCell></TableRow>}
+                        {!loading && payments?.length === 0 && <TableRow><TableCell colSpan={4} className="text-center">No payments recorded yet.</TableCell></TableRow>}
+                        {payments?.map((payment) => (
+                           <PaymentRow key={payment.id} payment={payment} />
                         ))}
                     </TableBody>
                 </Table>
@@ -284,7 +301,7 @@ export function ExpensesTab({ roomId }: { roomId: string }) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <AddExpenseForm roomId={roomId} chairpersonId={user.uid} />
-        <ExpensesList roomId={roomId} chairpersonId={user.uid} />
+        <RecentPaymentsList roomId={roomId} chairpersonId={user.uid} />
       </div>
     </div>
   );
