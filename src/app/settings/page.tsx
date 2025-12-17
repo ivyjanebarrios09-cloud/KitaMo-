@@ -18,12 +18,15 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Lock } from 'lucide-react';
+import { Lock, Settings as SettingsIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'avatar1');
 
@@ -93,16 +96,44 @@ export default function SettingsPage() {
                 <Lock className="h-5 w-5" /> Account Security
               </CardTitle>
               <CardDescription>
-                Manage your password and log out from your account.
+                Manage your password, privacy, and log out from your account.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Click the button below to sign out of your account on this
-                device.
-              </p>
-              <SignOutButton />
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center gap-2">
+                  <Input id="password" type="password" value="**********" disabled />
+                  <Button variant="outline" disabled>Change Password</Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                    Password change functionality is not yet available.
+                </p>
+              </div>
+
+              <Separator />
+              
+              <div className="space-y-4">
+                <h3 className="font-medium flex items-center gap-2"><SettingsIcon className="h-4 w-4" /> Privacy Settings</h3>
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                        <p className="text-sm font-medium">Public Profile</p>
+                        <p className="text-sm text-muted-foreground">Allow others to see your profile information.</p>
+                    </div>
+                    <Switch disabled />
+                </div>
+              </div>
+
             </CardContent>
+            <CardFooter className="flex-col items-start gap-4 border-t pt-6">
+                <div>
+                    <h3 className="font-medium">Switch or Log Out</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Sign out of your current account to log in with a different one or to end your session.
+                    </p>
+                </div>
+                <SignOutButton />
+            </CardFooter>
           </Card>
         </div>
       </main>
