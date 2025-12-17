@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { useCollection, useUser, useDoc } from '@/firebase';
+import { useCollection, useUser, useDoc, useFirestore } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import type { Expense, Room } from '@/lib/types';
 import {
@@ -42,21 +42,22 @@ const chartConfig = {
 export default function RoomGraphsPage({ params }: { params: { id: string } }) {
   const roomId = React.use(params).id;
   const { user, loading: userLoading } = useUser();
+  const db = useFirestore();
+
   const { data: room, loading: roomLoading } = useDoc<Room>(
     user ? `users/${user.uid}/rooms/${roomId}` : null
   );
 
   const expensesQuery = useMemo(() => {
-    if (!user) return null;
+    if (!user || !db) return null;
     return query(
       collection(db, 'users', user.uid, 'rooms', roomId, 'expenses')
     );
-  }, [user, roomId]);
+  }, [user, roomId, db]);
 
   const {
     data: expenses,
     loading: expensesLoading,
-    db,
   } = useCollection<Expense>(expensesQuery);
 
   const { monthlyData, yearlyData } = useMemo(() => {
@@ -66,12 +67,18 @@ export default function RoomGraphsPage({ params }: { params: { id: string } }) {
     const yearly: { [key: string]: number } = {};
 
     expenses.forEach((expense) => {
-      const date = new Date(expense.date);
-      const monthYear = format(date, 'MMM yyyy');
-      const year = format(date, 'yyyy');
+      try {
+        const date = new Date(expense.date);
+        if (isNaN(date.getTime())) return; 
 
-      monthly[monthYear] = (monthly[monthYear] || 0) + expense.amount;
-      yearly[year] = (yearly[year] || 0) + expense.amount;
+        const monthYear = format(date, 'MMM yyyy');
+        const year = format(date, 'yyyy');
+
+        monthly[monthYear] = (monthly[monthYear] || 0) + expense.amount;
+        yearly[year] = (yearly[year] || 0) + expense.amount;
+      } catch (e) {
+        // Ignore invalid dates
+      }
     });
 
     const monthlyData = Object.entries(monthly)
