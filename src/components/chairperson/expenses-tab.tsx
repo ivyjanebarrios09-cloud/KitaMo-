@@ -34,8 +34,9 @@ import {
     TableHeader,
     TableRow,
   } from '@/components/ui/table';
-import type { Expense } from '@/lib/types';
+import type { Expense, Payment } from '@/lib/types';
 import { format } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
 
 const formSchema = z.object({
   title: z.string().min(1, { message: 'Expense title is required.' }),
@@ -203,51 +204,82 @@ function ExpensesList({ roomId, chairpersonId }: { roomId: string, chairpersonId
     )
 }
 
+function FinancialSummaryCard({ title, value, icon, loading }: { title: string, value: number, icon: React.ReactNode, loading: boolean }) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <Skeleton className="h-8 w-3/4" />
+        ) : (
+          <div className="text-2xl font-bold">
+            {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(value)}
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground">
+          {loading ? 'Calculating...' : 'Updated in real-time'}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export function ExpensesTab({ roomId }: { roomId: string }) {
   const { user } = useUser();
+  const db = useFirestore();
+
+  const expensesQuery = useMemo(() => {
+    if (!user) return null;
+    return query(collection(db, 'users', user.uid, 'rooms', roomId, 'expenses'));
+  }, [db, user, roomId]);
+
+  const paymentsQuery = useMemo(() => {
+    if (!user) return null;
+    return query(collection(db, 'users', user.uid, 'rooms', roomId, 'payments'));
+  }, [db, user, roomId]);
+
+  const { data: expenses, loading: expensesLoading } = useCollection<Expense>(expensesQuery);
+  const { data: payments, loading: paymentsLoading } = useCollection<Payment>(paymentsQuery);
+
+  const { totalExpenses, totalCollected, remainingBalance } = useMemo(() => {
+    const expensesTotal = expenses?.reduce((sum, expense) => sum + expense.amount, 0) ?? 0;
+    const paymentsTotal = payments?.reduce((sum, payment) => sum + payment.amount, 0) ?? 0;
+    return {
+      totalExpenses: expensesTotal,
+      totalCollected: paymentsTotal,
+      remainingBalance: paymentsTotal - expensesTotal,
+    };
+  }, [expenses, payments]);
+
+  const loading = expensesLoading || paymentsLoading;
+
   if (!user) return null;
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Collected Funds
-            </CardTitle>
-            <PiggyBank className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₱0.00</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting payment data
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₱0.00</div>
-            <p className="text-xs text-muted-foreground">
-             Awaiting expense data
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₱0.00</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting calculation
-            </p>
-          </CardContent>
-        </Card>
+         <FinancialSummaryCard 
+            title="Total Collected Funds"
+            value={totalCollected}
+            icon={<PiggyBank className="h-4 w-4 text-muted-foreground" />}
+            loading={loading}
+        />
+        <FinancialSummaryCard 
+            title="Total Expenses"
+            value={totalExpenses}
+            icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
+            loading={loading}
+        />
+        <FinancialSummaryCard 
+            title="Remaining Balance"
+            value={remainingBalance}
+            icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            loading={loading}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
