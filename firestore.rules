@@ -11,11 +11,12 @@ service cloud.firestore {
     }
 
     // A chairperson can create a room if the chairpersonId matches their UID.
-    // A chairperson can read a room if they are the owner.
+    // A chairperson can read or list rooms if they are the owner.
     // Students can be handled later.
     match /rooms/{roomId} {
        allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
-       allow read, update: if request.auth != null && get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
+       allow get, update: if request.auth != null && get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
+       allow list: if request.auth != null && request.query.resource.data.chairpersonId == request.auth.uid;
     }
 
      // Students can join a room if they are logged in.
