@@ -13,34 +13,37 @@ export type FirebaseContextValue = {
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
-export const getFirebase = {
-  app: () => {
-    const context = useContext(FirebaseContext);
-    if (!context)
-      throw new Error('Firebase context not found. Are you in a provider?');
-    return context.app;
-  },
-  auth: () => {
-    const context = useContext(FirebaseContext);
-    if (!context)
-      throw new Error('Firebase context not found. Are you in a provider?');
-    return getAuth(context.app);
-  },
-  db: () => {
-    const context = useContext(FirebaseContext);
-    if (!context)
-      throw new Error('Firebase context not found. Are you in a provider?');
-    return getFirestore(context.app);
-  },
-};
-
-export const useFirebase = () => {
+export function useFirebase() {
   const context = useContext(FirebaseContext);
   if (!context) {
     throw new Error('useFirebase must be used within a FirebaseProvider');
   }
   return context;
-};
+}
+
+export function useFirebaseApp() {
+  const context = useContext(FirebaseContext);
+  if (!context) {
+    throw new Error('useFirebaseApp must be used within a FirebaseProvider');
+  }
+  return context.app;
+}
+
+export function useAuth() {
+  const context = useContext(FirebaseContext);
+  if (!context) {
+    throw new Error('useAuth must be used within a FirebaseProvider');
+  }
+  return context.auth;
+}
+
+export function useFirestore() {
+  const context = useContext(FirebaseContext);
+  if (!context) {
+    throw new Error('useFirestore must be used within a FirebaseProvider');
+  }
+  return context.db;
+}
 
 export function FirebaseProvider({
   children,

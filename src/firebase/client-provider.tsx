@@ -4,8 +4,10 @@ import {useEffect, useState} from 'react';
 import type {Auth} from 'firebase/auth';
 import type {FirebaseApp} from 'firebase/app';
 import type {Firestore} from 'firebase/firestore';
-import {FirebaseProvider, getFirebase} from '@/firebase/provider';
+import {FirebaseProvider} from '@/firebase/provider';
 import {initializeFirebase} from '@/firebase';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 export function FirebaseClientProvider({
   children,
@@ -19,11 +21,11 @@ export function FirebaseClientProvider({
   } | null>(null);
 
   useEffect(() => {
-    const firebaseInstance = initializeFirebase();
-    if (firebaseInstance) {
-      const auth = getFirebase.auth();
-      const db = getFirebase.db();
-      setFirebase({app: firebaseInstance, auth, db});
+    const app = initializeFirebase();
+    if (app) {
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      setFirebase({app, auth, db});
     }
   }, []);
 
