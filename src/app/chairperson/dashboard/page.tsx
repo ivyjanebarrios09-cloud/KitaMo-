@@ -10,6 +10,8 @@ import { ArrowLeft, ArrowRight, Users, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const navigationCards = [
   {
@@ -28,10 +30,17 @@ const navigationCards = [
 
 export default function ChairpersonDashboard() {
   const router = useRouter();
+  const { user, loading } = useUser();
 
   const handleCardClick = (href: string) => {
     router.push(href);
   };
+
+  const welcomeMessage = loading
+    ? <Skeleton className="h-6 w-64 mt-1" />
+    : <p className="text-muted-foreground">
+        Welcome back, {user?.displayName}! Select an option below to get started.
+      </p>
 
   return (
     <div className="space-y-6">
@@ -44,9 +53,7 @@ export default function ChairpersonDashboard() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Select an option below to get started.
-          </p>
+          {welcomeMessage}
         </div>
       </div>
 

@@ -10,6 +10,8 @@ import { ArrowLeft, ArrowRight, Users, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const navigationCards = [
   {
@@ -28,10 +30,17 @@ const navigationCards = [
 
 export default function StudentDashboard() {
   const router = useRouter();
+  const { user, loading } = useUser();
 
   const handleCardClick = (href: string) => {
     router.push(href);
   };
+  
+  const welcomeMessage = loading
+    ? <Skeleton className="h-6 w-52 mt-1" />
+    : <p className="text-muted-foreground">
+        Welcome, {user?.displayName}! Here is your financial overview.
+      </p>
 
   return (
     <div className="space-y-6">
@@ -44,9 +53,7 @@ export default function StudentDashboard() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold">Student Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome! Here is your financial overview.
-          </p>
+          {welcomeMessage}
         </div>
       </div>
 
