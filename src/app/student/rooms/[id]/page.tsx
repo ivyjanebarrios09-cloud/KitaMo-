@@ -84,7 +84,7 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
             {room.name}
           </h1>
           <Badge variant="outline" className="ml-auto sm:ml-0">
-            Managed by {chairperson?.name || '...'}
+            {chairperson?.name || '...'}
           </Badge>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
