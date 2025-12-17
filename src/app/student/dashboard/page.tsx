@@ -2,16 +2,25 @@
 
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Users, Settings } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Users,
+  Settings,
+  Wallet,
+  PiggyBank,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 const navigationCards = [
   {
@@ -35,12 +44,14 @@ export default function StudentDashboard() {
   const handleCardClick = (href: string) => {
     router.push(href);
   };
-  
-  const welcomeMessage = loading
-    ? <Skeleton className="h-6 w-52 mt-1" />
-    : <p className="text-muted-foreground">
-        Welcome, {user?.displayName}! Here is your financial overview.
-      </p>
+
+  const welcomeMessage = loading ? (
+    <Skeleton className="h-6 w-52 mt-1" />
+  ) : (
+    <p className="text-muted-foreground">
+      Welcome, {user?.displayName}! Here is your financial overview.
+    </p>
+  );
 
   return (
     <div className="space-y-6">
@@ -55,6 +66,45 @@ export default function StudentDashboard() {
           <h1 className="text-3xl font-bold">Student Dashboard</h1>
           {welcomeMessage}
         </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Unpaid</CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">₱0.00</div>
+            <p className="text-xs text-muted-foreground">
+              Across all joined rooms
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
+            <PiggyBank className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₱0.00</div>
+            <p className="text-xs text-muted-foreground">
+              Across all joined rooms
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Overall Payment Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={0} className="mb-2" />
+            <p className="text-xs text-muted-foreground text-center">
+              You&apos;ve paid 0% of your total dues.
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
