@@ -130,26 +130,19 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                     <TableRow>
                         <TableHead>Deadline</TableHead>
                         <TableHead>Due Date</TableHead>
-                        <TableHead>Status</TableHead>
                         <TableHead>Amount Required</TableHead>
                         <TableHead>Amount Paid</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {deadlinesLoading && <TableRow><TableCell colSpan={6} className="text-center">Loading deadlines...</TableCell></TableRow>}
-                    {!deadlinesLoading && deadlines?.length === 0 && <TableRow><TableCell colSpan={6} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
+                    {deadlinesLoading && <TableRow><TableCell colSpan={5} className="text-center">Loading deadlines...</TableCell></TableRow>}
+                    {!deadlinesLoading && deadlines?.length === 0 && <TableRow><TableCell colSpan={5} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
                     {deadlines?.map(deadline => {
-                        const isOverdue = new Date(deadline.dueDate) < new Date();
                         return (
-                            <TableRow key={deadline.id} className={isOverdue ? 'bg-red-50 dark:bg-red-900/20' : ''}>
+                            <TableRow key={deadline.id}>
                                 <TableCell className="font-medium">{deadline.title}</TableCell>
                                 <TableCell>{format(new Date(deadline.dueDate), 'PP')}</TableCell>
-                                <TableCell>
-                                    <Badge variant={isOverdue ? "destructive" : "secondary"}>
-                                        {isOverdue ? "Overdue" : "Upcoming"}
-                                    </Badge>
-                                </TableCell>
                                 <TableCell>{new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(deadline.amountPerStudent)}</TableCell>
                                 <TableCell>₱0.00</TableCell>
                                 <TableCell className="text-right"><Button size="sm" disabled>Pay Now</Button></TableCell>
