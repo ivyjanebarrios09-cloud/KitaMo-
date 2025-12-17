@@ -218,9 +218,9 @@ export function ExpensesTab({ roomId }: { roomId: string }) {
             <PiggyBank className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₱3,500.00</div>
+            <div className="text-2xl font-bold">₱0.00</div>
             <p className="text-xs text-muted-foreground">
-              Placeholder data
+              Awaiting payment data
             </p>
           </CardContent>
         </Card>
@@ -230,9 +230,9 @@ export function ExpensesTab({ roomId }: { roomId: string }) {
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₱3,200.00</div>
+            <div className="text-2xl font-bold">₱0.00</div>
             <p className="text-xs text-muted-foreground">
-             Placeholder data
+             Awaiting expense data
             </p>
           </CardContent>
         </Card>
@@ -242,9 +242,9 @@ export function ExpensesTab({ roomId }: { roomId: string }) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₱300.00</div>
+            <div className="text-2xl font-bold">₱0.00</div>
             <p className="text-xs text-muted-foreground">
-              Placeholder data
+              Awaiting calculation
             </p>
           </CardContent>
         </Card>

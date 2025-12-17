@@ -51,8 +51,8 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$8,800.00</div>
-              <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">Awaiting calculations</p>
             </CardContent>
           </Card>
           <Card>
@@ -61,8 +61,8 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+152</div>
-              <p className="text-xs text-muted-foreground">+18.1% from last month</p>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">No members yet</p>
             </CardContent>
           </Card>
           <Card>
@@ -71,8 +71,8 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$7,600.00</div>
-              <p className="text-xs text-muted-foreground">+19% from last month</p>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">No payments recorded</p>
             </CardContent>
           </Card>
           <Card>
@@ -81,8 +81,8 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
               <ClipboardList className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$1,200.00</div>
-              <p className="text-xs text-muted-foreground">22 members outstanding</p>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">No outstanding members</p>
             </CardContent>
           </Card>
         </div>
@@ -111,18 +111,7 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>John Doe</TableCell>
-                  <TableCell>$50.00</TableCell>
-                  <TableCell>$0.00</TableCell>
-                  <TableCell><Badge>Paid</Badge></TableCell>
-                  <TableCell><Button variant="outline" size="sm">View History</Button></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Jane Smith</TableCell>
-                  <TableCell>$25.00</TableCell>
-                  <TableCell>$25.00</TableCell>
-                  <TableCell><Badge variant="secondary">Partial</Badge></TableCell>
-                  <TableCell><Button variant="outline" size="sm">Mark as Paid</Button></TableCell>
+                  <TableCell colSpan={5} className="text-center">No students have joined this room yet.</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

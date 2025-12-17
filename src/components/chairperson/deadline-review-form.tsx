@@ -146,7 +146,7 @@ export function DeadlineReviewForm({ roomId }: { roomId: string }) {
                 name="amountPerStudent"
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Amount per Student ($)</Label>
+                    <Label>Amount per Student (₱)</Label>
                     <FormControl>
                       <Input type="number" placeholder="50.00" {...field} />
                     </FormControl>

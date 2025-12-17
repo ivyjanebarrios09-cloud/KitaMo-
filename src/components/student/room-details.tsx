@@ -41,7 +41,7 @@ export function StudentRoomDetails() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
                 <h3 className="font-semibold">Current Balance</h3>
-                <p className="text-4xl font-bold text-red-600">$25.00 <span className="text-lg font-normal text-muted-foreground">due</span></p>
+                <p className="text-4xl font-bold text-red-600">₱25.00 <span className="text-lg font-normal text-muted-foreground">due</span></p>
             </div>
             <div className="space-y-2">
                 <div className="flex justify-between text-sm font-medium">
@@ -50,8 +50,8 @@ export function StudentRoomDetails() {
                 </div>
                 <Progress value={50} />
                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Paid: $25.00</span>
-                    <span>Total: $50.00</span>
+                    <span>Paid: ₱25.00</span>
+                    <span>Total: ₱50.00</span>
                 </div>
             </div>
           </CardContent>
@@ -76,12 +76,12 @@ export function StudentRoomDetails() {
                     <TableRow>
                         <TableCell>2024-04-15</TableCell>
                         <TableCell>Venue Deposit</TableCell>
-                        <TableCell className="text-right">$2,500.00</TableCell>
+                        <TableCell className="text-right">₱2,500.00</TableCell>
                     </TableRow>
                      <TableRow>
                         <TableCell>2024-04-22</TableCell>
                         <TableCell>Catering Service</TableCell>
-                        <TableCell className="text-right">$4,000.00</TableCell>
+                        <TableCell className="text-right">₱4,000.00</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
@@ -111,16 +111,16 @@ export function StudentRoomDetails() {
                         <TableCell className="font-medium">Ticket First Installment</TableCell>
                         <TableCell>2024-03-31</TableCell>
                         <TableCell><Badge variant="destructive">Overdue</Badge></TableCell>
-                        <TableCell>$25.00</TableCell>
-                        <TableCell>$0.00</TableCell>
+                        <TableCell>₱25.00</TableCell>
+                        <TableCell>₱0.00</TableCell>
                         <TableCell className="text-right"><Button size="sm">Pay Now</Button></TableCell>
                     </TableRow>
                      <TableRow>
                         <TableCell className="font-medium">Ticket Final Payment</TableCell>
                         <TableCell>2024-04-30</TableCell>
                         <TableCell><Badge variant="secondary">Upcoming</Badge></TableCell>
-                         <TableCell>$25.00</TableCell>
-                        <TableCell>$25.00</TableCell>
+                         <TableCell>₱25.00</TableCell>
+                        <TableCell>₱25.00</TableCell>
                         <TableCell className="text-right"><Button size="sm" variant="outline" disabled>Pay Now</Button></TableCell>
                     </TableRow>
                 </TableBody>
