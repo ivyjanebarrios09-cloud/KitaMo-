@@ -132,6 +132,38 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
             </CardContent>
             </Card>
         </div>
+        <div className="mt-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Transaction History</CardTitle>
+                    <CardDescription>A record of all payments you have made in this room.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Note / For</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {paymentsLoading && <TableRow><TableCell colSpan={3} className="text-center">Loading history...</TableCell></TableRow>}
+                            {!paymentsLoading && payments?.length === 0 && <TableRow><TableCell colSpan={3} className="text-center">You have not made any payments yet.</TableCell></TableRow>}
+                            {!paymentsLoading && payments?.map(payment => (
+                                <TableRow key={payment.id}>
+                                    <TableCell>{format(new Date(payment.date), 'PP')}</TableCell>
+                                    <TableCell>{payment.note}</TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(payment.amount)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
       </TabsContent>
       <TabsContent value="expenses">
         <Card className="mt-4">
