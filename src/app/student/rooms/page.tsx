@@ -1,11 +1,11 @@
 'use client';
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
-import { FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { useMemo } from 'react';
-import { collection, query, where } from 'firebase/firestore';
-import type { Room } from '@/lib/types';
+import { collection, query } from 'firebase/firestore';
+import type { JoinedRoom } from '@/lib/types';
 import Link from 'next/link';
 import {
   Card,
@@ -15,18 +15,20 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
-function RoomCard({ room }: { room: Room }) {
+function RoomCard({ room }: { room: JoinedRoom }) {
+    // The link should now include chairpersonId, but we don't have it here yet.
+    // This will be part of the next step.
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{room.name}</CardTitle>
-          <CardDescription>{room.description || 'No description provided.'}</CardDescription>
+          <CardTitle>{room.roomName}</CardTitle>
+          <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
         </CardHeader>
-         <CardFooter className="flex justify-between">
-          <div></div>
-          <Link href={`/student/rooms/${room.id}`}>
+         <CardFooter className="flex justify-end">
+          <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
               <Button variant="outline" size="sm">
                   View Room
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -37,47 +39,87 @@ function RoomCard({ room }: { room: Room }) {
     );
   }
 
+function RoomsSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {[...Array(3)].map((_, i) => (
+        <Card key={i}>
+          <CardHeader>
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="mt-2 h-4 w-full" />
+          </CardHeader>
+          <CardFooter className="flex justify-end">
+             <Skeleton className="h-9 w-28" />
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+
 export default function StudentRoomsPage() {
   const db = useFirestore();
   const { user, loading: userLoading } = useUser();
 
-  // This query is a placeholder. A real implementation would require a more complex query
-  // or a different data structure to efficiently find all rooms a user is a member of.
-  // For example, storing a list of joined room IDs in the user's document.
-  const roomsQuery = useMemo(() => {
+  const joinedRoomsQuery = useMemo(() => {
     if (!user) return null;
-    // This is not a valid firestore query. We cannot query subcollections across all users.
-    // This will be fixed later.
-    return query(collection(db, 'rooms'), where('memberIds', 'array-contains', user.uid));
+    return query(collection(db, 'users', user.uid, 'joinedRooms'));
   }, [db, user]);
 
-  const { data: rooms, loading: roomsLoading } = useCollection<Room>(roomsQuery);
+  const { data: joinedRooms, loading: roomsLoading, error } = useCollection<JoinedRoom>(joinedRoomsQuery);
 
-  const isLoading = userLoading || (roomsQuery && roomsLoading);
-
+  const isLoading = userLoading || (joinedRoomsQuery && roomsLoading);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">My Rooms</h1>
-          <p className="text-muted-foreground">
-            The rooms you have joined are listed below.
-          </p>
+       <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <Link href="/student/dashboard">
+            <Button variant="outline" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+            </Button>
+            </Link>
+            <div>
+            <h1 className="text-3xl font-bold">My Rooms</h1>
+            <p className="text-muted-foreground">
+                The rooms you have joined are listed below.
+            </p>
+            </div>
         </div>
         <JoinRoomButton />
       </div>
 
-      {/* This section will be replaced with a list of joined rooms later. */}
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
-        <FileText className="h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-4 text-xl font-semibold">No Rooms Joined Yet</h3>
-        <p className="mb-4 mt-2 text-sm text-muted-foreground">
-          Join your first financial room to see its details here. <br/>
-          (Room listing is not yet implemented).
-        </p>
-        <JoinRoomButton />
-      </div>
+      {isLoading && <RoomsSkeleton />}
+
+      {!isLoading && error && (
+        <Alert variant="destructive">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            There was a problem loading your rooms. Please try again later.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!isLoading && !joinedRooms?.length && (
+         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
+            <FileText className="h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-xl font-semibold">No Rooms Joined Yet</h3>
+            <p className="mb-4 mt-2 text-sm text-muted-foreground">
+              Click the "Join Room" button to join your first financial room.
+            </p>
+            <JoinRoomButton />
+        </div>
+      )}
+
+      {!isLoading && joinedRooms && joinedRooms.length > 0 && (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {joinedRooms.map((room) => (
+            <RoomCard key={room.id} room={room} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -51,6 +51,19 @@
       },
       "required": ["name", "code", "createdAt"]
     },
+    "joinedRoom": {
+        "title": "Joined Room",
+        "description": "A reference to a room that a student has joined.",
+        "type": "object",
+        "properties": {
+            "roomId": { "type": "string", "description": "The ID of the joined room." },
+            "chairpersonId": { "type": "string", "description": "The UID of the chairperson who owns the room." },
+            "roomName": { "type": "string", "description": "The name of the joined room." },
+            "roomDescription": { "type": "string", "description": "The description of the joined room." },
+            "joinedAt": { "type": "string", "format": "date-time", "description": "The date and time the student joined the room." }
+        },
+        "required": ["roomId", "chairpersonId", "roomName", "joinedAt"]
+    },
     "roomMember": {
       "title": "Room Member",
       "description": "A user who is a member of a room.",
@@ -168,6 +181,12 @@
         "$ref": "#/entities/room"
       },
       "description": "Stores information about financial rooms owned by a user."
+    },
+     "/users/{userId}/joinedRooms/{roomId}": {
+      "schema": {
+        "$ref": "#/entities/joinedRoom"
+      },
+      "description": "Stores references to rooms a student has joined."
     },
     "/users/{userId}/rooms/{roomId}/members/{memberId}": {
       "schema": {

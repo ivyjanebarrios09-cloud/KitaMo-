@@ -19,6 +19,16 @@ export type Room = {
   createdAt: Timestamp;
 };
 
+// Represents the document stored in a student's `joinedRooms` subcollection
+export type JoinedRoom = {
+  id: string; // The doc ID is the roomId
+  roomId: string;
+  chairpersonId: string;
+  roomName: string;
+  roomDescription: string;
+  joinedAt: Timestamp;
+}
+
 export type RoomMember = {
     id: string;
     // roomId is the document ID, not a field

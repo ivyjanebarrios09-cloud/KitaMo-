@@ -109,10 +109,15 @@ export function JoinRoomButton() {
       const batch = writeBatch(db);
       batch.set(memberRef, newMemberData);
 
-      // Optional: you might want to create a reference in the student's user doc
-      // to easily find all rooms they are a member of.
-      // const studentRoomRef = doc(db, 'users', user.uid, 'joinedRooms', roomId);
-      // batch.set(studentRoomRef, { roomId, chairpersonId });
+      // Create a reference in the student's user doc to easily find all rooms they are a member of.
+      const studentRoomRef = doc(db, 'users', user.uid, 'joinedRooms', roomId);
+      batch.set(studentRoomRef, { 
+        roomId, 
+        chairpersonId,
+        roomName: roomName,
+        roomDescription: roomSnap.exists() ? roomSnap.data().description : '',
+        joinedAt: serverTimestamp(),
+      });
 
       await batch.commit();
 
@@ -126,7 +131,7 @@ export function JoinRoomButton() {
     } catch (error: any) {
       if (error.code === 'permission-denied') {
         const permissionError = new FirestorePermissionError({
-          path: 'roomMembers or roomCodes', // This could fail on read or write
+          path: 'roomMembers or roomCodes or joinedRooms', // This could fail on read or write
           operation: 'create',
         });
         errorEmitter.emit('permission-error', permissionError);
@@ -188,7 +193,7 @@ export function JoinRoomButton() {
                 Cancel
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Joining...' : 'Join Room'}
+                {form.state.isSubmitting ? 'Joining...' : 'Join Room'}
               </Button>
             </DialogFooter>
           </form>
