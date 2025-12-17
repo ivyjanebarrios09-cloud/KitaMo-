@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,8 @@ function RoomHeaderSkeleton() {
     )
 }
 
-export default function StudentRoomPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const { data: room, loading: roomLoading } = useDoc<Room>(`rooms/${id}`);
   const { data: chairperson, loading: chairpersonLoading } = useDoc<User>(room ? `users/${room.chairpersonId}` : null);
 

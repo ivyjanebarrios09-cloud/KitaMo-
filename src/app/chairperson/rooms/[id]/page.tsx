@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import React from 'react';
 import { useDoc } from '@/firebase';
 import type { Room } from '@/lib/types';
 import { ChevronLeft } from 'lucide-react';
@@ -20,8 +21,8 @@ function RoomHeaderSkeleton() {
 }
 
 
-export default function ChairpersonRoomPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function ChairpersonRoomPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const { data: room, loading } = useDoc<Room>(`rooms/${id}`);
 
   if (loading) {
