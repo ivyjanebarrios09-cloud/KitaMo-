@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button';
 import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-form';
 import type { Room } from '@/lib/types';
 import { GenerateStatements } from './generate-statements';
+import { ExpensesTab } from './expenses-tab';
 
 export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
   return (
@@ -87,15 +88,7 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
         </div>
       </TabsContent>
       <TabsContent value="expenses">
-        <Card>
-          <CardHeader>
-            <CardTitle>Expenses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Expense management UI */}
-            <p>Expense management functionality will be here.</p>
-          </CardContent>
-        </Card>
+        <ExpensesTab roomId={roomId} />
       </TabsContent>
       <TabsContent value="deadlines">
         <DeadlineReviewForm roomId={roomId} />
