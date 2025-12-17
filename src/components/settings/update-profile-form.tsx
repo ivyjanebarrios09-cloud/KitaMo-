@@ -86,6 +86,14 @@ export function UpdateProfileForm({ userProfile }: UpdateProfileFormProps) {
     }
   }
 
+  const displayRole =
+    userProfile?.role === 'chairperson'
+      ? 'Financial Chairperson'
+      : userProfile?.role === 'student'
+      ? 'Student'
+      : '';
+
+
   return (
     <Card>
       <Form {...form}>
@@ -122,12 +130,7 @@ export function UpdateProfileForm({ userProfile }: UpdateProfileFormProps) {
             <FormItem>
               <FormLabel>Role</FormLabel>
               <Input
-                value={
-                  userProfile?.role
-                    ? userProfile.role.charAt(0).toUpperCase() +
-                      userProfile.role.slice(1)
-                    : ''
-                }
+                value={displayRole}
                 disabled
               />
               <p className="text-sm text-muted-foreground">
