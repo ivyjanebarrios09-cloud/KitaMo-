@@ -74,11 +74,7 @@ export default function ChairpersonRoomsPage() {
     return query(collection(db, 'rooms'), where('chairpersonId', '==', user.uid));
   }, [db, user]);
 
-  // The hook needs a query object, so we pass null and handle the loading state
-  const { data: rooms, loading: roomsLoading, error } = useCollection<Room>(roomsQuery?.path);
-
-  const chairpersonRooms = rooms?.filter(room => room.chairpersonId === user?.uid);
-
+  const { data: rooms, loading: roomsLoading, error } = useCollection<Room>(roomsQuery);
 
   const isLoading = userLoading || (roomsQuery && roomsLoading);
 
@@ -105,7 +101,7 @@ export default function ChairpersonRoomsPage() {
         </Alert>
       )}
 
-      {!isLoading && !chairpersonRooms?.length && (
+      {!isLoading && !rooms?.length && (
          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
             <FileText className="h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-xl font-semibold">No Rooms Yet</h3>
@@ -116,9 +112,9 @@ export default function ChairpersonRoomsPage() {
         </div>
       )}
 
-      {!isLoading && chairpersonRooms && chairpersonRooms.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {chairpersonRooms.map((room) => (
+      {!isLoading && rooms && rooms.length > 0 && (
+        <div className="grid gap-6 md-grid-cols-2 lg:grid-cols-3">
+          {rooms.map((room) => (
             <RoomCard key={room.id} room={room} />
           ))}
         </div>
