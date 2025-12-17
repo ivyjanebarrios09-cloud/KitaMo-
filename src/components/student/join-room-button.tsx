@@ -193,7 +193,7 @@ export function JoinRoomButton() {
                 Cancel
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.state.isSubmitting ? 'Joining...' : 'Join Room'}
+                {form.formState.isSubmitting ? 'Joining...' : 'Join Room'}
               </Button>
             </DialogFooter>
           </form>
