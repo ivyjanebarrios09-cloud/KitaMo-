@@ -6,14 +6,14 @@ import { useCollection, useUser, useDoc } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import type { Expense, Room } from '@/lib/types';
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 import {
   Card,
@@ -40,7 +40,7 @@ const chartConfig = {
 };
 
 export default function RoomGraphsPage({ params }: { params: { id: string } }) {
-  const roomId = params.id;
+  const roomId = React.use(params).id;
   const { user, loading: userLoading } = useUser();
   const { data: room, loading: roomLoading } = useDoc<Room>(
     user ? `users/${user.uid}/rooms/${roomId}` : null
@@ -103,7 +103,7 @@ export default function RoomGraphsPage({ params }: { params: { id: string } }) {
             <Skeleton className="h-4 w-64 mt-2" />
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Skeleton className="h-96 w-full" />
           <Skeleton className="h-96 w-full" />
         </div>
@@ -129,7 +129,7 @@ export default function RoomGraphsPage({ params }: { params: { id: string } }) {
       </div>
 
       {expenses && expenses.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Monthly Expenses</CardTitle>
@@ -139,23 +139,29 @@ export default function RoomGraphsPage({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(value) => `₱${value.toLocaleString()}`}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Legend />
-                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-                </BarChart>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tickFormatter={(value) => `₱${value.toLocaleString()}`}
+                    />
+                    <ChartTooltip
+                      content={<ChartTooltipContent indicator="dot" />}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="expenses"
+                      fill="var(--color-expenses)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -169,29 +175,35 @@ export default function RoomGraphsPage({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={yearlyData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(value) => `₱${value.toLocaleString()}`}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Legend />
-                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-                </BarChart>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={yearlyData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tickFormatter={(value) => `₱${value.toLocaleString()}`}
+                    />
+                    <ChartTooltip
+                      content={<ChartTooltipContent indicator="dot" />}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="expenses"
+                      fill="var(--color-expenses)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
           </Card>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center h-[400px]">
+        <div className="flex h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
           <BarChart2 className="h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-xl font-semibold">No Expense Data</h3>
           <p className="mb-4 mt-2 text-sm text-muted-foreground">
