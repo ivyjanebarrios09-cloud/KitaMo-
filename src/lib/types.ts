@@ -6,6 +6,7 @@ export type User = {
   email: string;
   avatarUrl: string;
   role: 'chairperson' | 'student';
+  displayName?: string;
 };
 
 export type Room = {
