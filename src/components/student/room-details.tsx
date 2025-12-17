@@ -25,9 +25,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Room } from '@/lib/types';
 import { useMemo } from 'react';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
-import { Expense, FundDeadline } from '@/lib/types';
+import { Expense, FundDeadline, Payment } from '@/lib/types';
 import { format } from 'date-fns';
 import { GeneratePersonalStatement } from './generate-personal-statement';
 import { PiggyBank, Wallet } from 'lucide-react';
@@ -52,8 +52,40 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
         return query(collection(db, `users/${chairpersonId}/rooms/${roomId}/deadlines`));
     }, [db, chairpersonId, roomId]);
 
+    const paymentsQuery = useMemo(() => {
+        if (!chairpersonId || !roomId || !studentId) return null;
+        return query(
+            collection(db, `users/${chairpersonId}/rooms/${roomId}/payments`),
+            where('userId', '==', studentId)
+        );
+    }, [db, chairpersonId, roomId, studentId]);
+
     const { data: expenses, loading: expensesLoading } = useCollection<Expense>(expensesQuery);
     const { data: deadlines, loading: deadlinesLoading } = useCollection<FundDeadline>(deadlinesQuery);
+    const { data: payments, loading: paymentsLoading } = useCollection<Payment>(paymentsQuery);
+
+    const { totalDue, totalPaid, paymentsByDeadline } = useMemo(() => {
+        const due = deadlines?.reduce((sum, d) => sum + d.amountPerStudent, 0) ?? 0;
+        const paid = payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
+
+        const pbd: { [key: string]: number } = {};
+        if (deadlines && payments) {
+             deadlines.forEach(deadline => {
+                // This is a simple model. A real app might need more complex logic
+                // to associate payments with specific deadlines. Here we just check total paid vs total due for each.
+                const deadlineTotalPaid = payments.filter(p => new Date(p.date) <= new Date(deadline.dueDate)).reduce((acc, p) => acc + p.amount, 0);
+                 pbd[deadline.id] = deadlineTotalPaid;
+             });
+        }
+
+
+        return { totalDue: due, totalPaid: paid, paymentsByDeadline: pbd };
+    }, [deadlines, payments]);
+
+    const totalUnpaid = totalDue - totalPaid;
+    const paymentProgress = totalDue > 0 ? (totalPaid / totalDue) * 100 : 0;
+    const loading = deadlinesLoading || paymentsLoading;
+
 
   return (
     <Tabs defaultValue="dashboard">
@@ -71,7 +103,9 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-red-600">₱0.00</div>
+                <div className="text-2xl font-bold text-red-600">
+                    {loading ? '...' : new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalUnpaid > 0 ? totalUnpaid : 0)}
+                </div>
                 <p className="text-xs text-muted-foreground">
                 Your outstanding balance for this room.
                 </p>
@@ -83,7 +117,9 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 <PiggyBank className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">₱0.00</div>
+                <div className="text-2xl font-bold">
+                     {loading ? '...' : new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalPaid)}
+                </div>
                 <p className="text-xs text-muted-foreground">
                 Your total contributions to this room.
                 </p>
@@ -96,9 +132,9 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Progress value={0} className="mb-2" />
+                <Progress value={paymentProgress} className="mb-2" />
                 <p className="text-xs text-muted-foreground text-center">
-                You&apos;ve paid 0% of your total dues.
+                {loading ? '...' : `You've paid ${paymentProgress.toFixed(0)}% of your total dues.`}
                 </p>
             </CardContent>
             </Card>
@@ -158,14 +194,14 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                     {deadlinesLoading && <TableRow><TableCell colSpan={5} className="text-center">Loading deadlines...</TableCell></TableRow>}
                     {!deadlinesLoading && deadlines?.length === 0 && <TableRow><TableCell colSpan={5} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
                     {deadlines?.map(deadline => {
-                        // TODO: Replace with actual payment status logic
-                        const isPaid = false; 
+                        const amountPaidForDeadline = paymentsByDeadline[deadline.id] ?? 0;
+                        const isPaid = amountPaidForDeadline >= deadline.amountPerStudent;
                         return (
                             <TableRow key={deadline.id}>
                                 <TableCell className="font-medium">{deadline.title}</TableCell>
                                 <TableCell>{format(new Date(deadline.dueDate), 'PP')}</TableCell>
                                 <TableCell>{new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(deadline.amountPerStudent)}</TableCell>
-                                <TableCell>₱0.00</TableCell>
+                                <TableCell>{new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amountPaidForDeadline)}</TableCell>
                                 <TableCell className="text-right">
                                     <Badge variant={isPaid ? 'secondary' : 'destructive'}>
                                         {isPaid ? 'Paid' : 'Unpaid'}
