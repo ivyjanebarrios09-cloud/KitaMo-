@@ -9,6 +9,8 @@ import {
   DocumentSnapshot,
 } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 interface UseDocOptions {
   // Add any options here
@@ -46,10 +48,20 @@ export function useDoc<T = DocumentData>(
           setData(null); // Document does not exist
         }
         setLoading(false);
+        setError(null);
       },
-      (err: FirestoreError) => {
-        console.error("Error fetching document:", err);
-        setError(err);
+      async (err: FirestoreError) => {
+        if (err.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+              path: memoizedRef.path,
+              operation: 'get',
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+            setError(permissionError);
+        } else {
+          console.error("Error fetching document:", err);
+          setError(err);
+        }
         setLoading(false);
       }
     );

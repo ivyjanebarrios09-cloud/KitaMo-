@@ -28,6 +28,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Room name is required.' }),
@@ -68,28 +70,39 @@ export function CreateRoomButton() {
       return;
     }
 
-    try {
-      await addDoc(collection(db, 'rooms'), {
-        name: values.name,
-        description: values.description,
-        chairpersonId: user.uid,
-        joinCode: generateJoinCode(),
-      });
+    const newRoom = {
+      name: values.name,
+      description: values.description,
+      chairpersonId: user.uid,
+      joinCode: generateJoinCode(),
+    };
 
-      toast({
-        title: 'Success!',
-        description: `The room "${values.name}" has been created.`,
+    addDoc(collection(db, 'rooms'), newRoom)
+      .then(() => {
+        toast({
+          title: 'Success!',
+          description: `The room "${values.name}" has been created.`,
+        });
+        form.reset();
+        setOpen(false);
+      })
+      .catch((error) => {
+         if (error.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+              path: 'rooms',
+              operation: 'create',
+              requestResourceData: newRoom,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        } else {
+            console.error('Error creating room:', error);
+            toast({
+              variant: 'destructive',
+              title: 'Uh oh! Something went wrong.',
+              description: 'There was a problem creating your room.',
+            });
+        }
       });
-      form.reset();
-      setOpen(false);
-    } catch (error) {
-      console.error('Error creating room:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem creating your room.',
-      });
-    }
   }
 
   return (

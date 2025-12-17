@@ -10,6 +10,8 @@ import {
   QuerySnapshot,
 } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 interface UseCollectionOptions {
   // Add any options here, e.g., for filtering or sorting
@@ -47,10 +49,20 @@ export function useCollection<T = DocumentData>(
         const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as T);
         setData(docs);
         setLoading(false);
+        setError(null);
       },
-      (err: FirestoreError) => {
-        console.error("Error fetching collection:", err);
-        setError(err);
+      async (err: FirestoreError) => {
+        if (err.code === 'permission-denied') {
+          const permissionError = new FirestorePermissionError({
+            path: memoizedQuery.path,
+            operation: 'list',
+          } satisfies SecurityRuleContext);
+          errorEmitter.emit('permission-error', permissionError);
+          setError(permissionError);
+        } else {
+          console.error("Error fetching collection:", err);
+          setError(err);
+        }
         setLoading(false);
       }
     );
