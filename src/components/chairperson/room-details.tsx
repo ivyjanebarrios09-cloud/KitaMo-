@@ -130,7 +130,7 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
         </Card>
       </TabsContent>
       <TabsContent value="statements">
-        <GenerateStatements roomId={roomId} />
+        <GenerateStatements room={room} roomId={roomId} />
       </TabsContent>
     </Tabs>
   );

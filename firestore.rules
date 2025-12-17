@@ -13,31 +13,34 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    // Users can read their own profile, anyone can read other profiles.
+    // Users can read and write their own profile.
     match /users/{userId} {
       allow read, write: if isOwner(userId);
     }
     
-    // A user can manage the rooms within their own subcollection.
+    // A user can manage the rooms, members, expenses, deadlines, and payments within their own subcollection.
     match /users/{userId}/rooms/{roomId} {
-       allow read, write: if isOwner(userId);
+       allow read, create, update, delete: if isOwner(userId);
 
-       // Any signed in user can become a member of a room.
        match /members/{memberId} {
+         // Any signed in user can join a room (create a member doc for themselves)
          allow create: if isSignedIn();
-         // Add read, update, delete as needed.
+         // Room owner can read member list
+         allow read, list: if isOwner(userId);
        }
        
-       // The owner of the room can manage expenses, deadlines, and payments.
        match /expenses/{expenseId} {
+          // Room owner can manage expenses
           allow read, write: if isOwner(userId);
        }
 
        match /deadlines/{deadlineId} {
+          // Room owner can manage deadlines
           allow read, write: if isOwner(userId);
        }
        
        match /payments/{paymentId} {
+          // Room owner can manage payments
           allow read, write: if isOwner(userId);
        }
     }
@@ -46,6 +49,7 @@ service cloud.firestore {
     match /roomCodes/{code} {
         allow read: if isSignedIn();
         // Writes should only be done via a Cloud Function to ensure consistency.
+        // The client-side batch write will attempt this, but will be blocked by this rule.
         allow write: if false; 
     }
   }
