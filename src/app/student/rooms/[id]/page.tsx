@@ -21,8 +21,8 @@ function RoomHeaderSkeleton() {
     )
 }
 
-export default function StudentRoomPage({ params }: { params: { id: string } }) {
-  const { id: roomId } = params;
+export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: roomId } = React.use(params);
   const searchParams = useSearchParams();
   const chairpersonId = searchParams.get('chairpersonId');
   
