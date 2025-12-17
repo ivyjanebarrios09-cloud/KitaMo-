@@ -16,7 +16,7 @@ interface UseCollectionOptions {
 }
 
 export function useCollection<T = DocumentData>(
-  path: string,
+  pathOrQuery: string | Query | null,
   options?: UseCollectionOptions
 ) {
   const db = useFirestore();
@@ -25,13 +25,16 @@ export function useCollection<T = DocumentData>(
   const [error, setError] = useState<FirestoreError | null>(null);
 
   const memoizedQuery = useMemo(() => {
-    if (!path) return null;
-    return query(collection(db, path));
-    // Re-create the query only if path or options change
-  }, [db, path]);
+    if (!pathOrQuery) return null;
+    if (typeof pathOrQuery === 'string') {
+      return query(collection(db, pathOrQuery));
+    }
+    return pathOrQuery;
+  }, [db, pathOrQuery]);
 
   useEffect(() => {
     if (!memoizedQuery) {
+        setData([]);
         setLoading(false);
         return;
     };
