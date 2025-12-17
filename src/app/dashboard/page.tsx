@@ -1,29 +1,59 @@
-// This is a placeholder for a server component that would handle role-based redirection.
-// In a real application, you would check the user's session and role,
-// then use `redirect()` from `next/navigation` to send them to the correct dashboard.
+'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
+import { useUser } from '@/firebase/auth/use-user';
+import { useFirestore } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
+  const { user, loading: userLoading } = useUser();
+  const db = useFirestore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userLoading) return; // Wait until user status is resolved
+    if (!user) {
+      router.push('/login'); // If no user, redirect to login
+      return;
+    }
+
+    const getUserRole = async () => {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        if (userData.role === 'chairperson') {
+          router.replace('/chairperson/dashboard');
+        } else {
+          router.replace('/student/dashboard');
+        }
+      } else {
+        // Handle case where user document doesn't exist, maybe redirect to an error page or logout
+        console.error("User document not found in Firestore.");
+        router.push('/login');
+      }
+    };
+
+    getUserRole();
+  }, [user, userLoading, db, router]);
+
+  // Display a loading state while redirecting
   return (
-    <div className="flex h-screen w-full items-center justify-center">
+     <div className="flex h-screen w-full items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome to KitaMo!</CardTitle>
+          <CardTitle>Loading Your Dashboard</CardTitle>
           <CardDescription>
-            In a real application, you would be automatically redirected based on your role.
-            For now, please select your destination.
+            Please wait while we redirect you...
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-around">
-          <Button asChild>
-            <Link href="/chairperson/dashboard">Chairperson Dashboard</Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/student/dashboard">Student Dashboard</Link>
-          </Button>
+        <CardContent className="space-y-4">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-8 w-1/2" />
         </CardContent>
       </Card>
     </div>
