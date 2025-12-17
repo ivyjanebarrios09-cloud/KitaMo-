@@ -20,8 +20,8 @@ function RoomHeaderSkeleton() {
 }
 
 
-export default function ChairpersonRoomPage({ params }: { params: { id: string } }) {
-  const { data: room, loading } = useDoc<Room>(`rooms/${params.id}`);
+export default function ChairpersonRoomPage({ params: { id } }: { params: { id: string } }) {
+  const { data: room, loading } = useDoc<Room>(`rooms/${id}`);
 
   if (loading) {
       return (
@@ -70,7 +70,7 @@ export default function ChairpersonRoomPage({ params }: { params: { id: string }
             CODE: {room.code}
           </Badge>
         </div>
-        <RoomDetails room={room} roomId={params.id} />
+        <RoomDetails room={room} roomId={id} />
       </div>
     </div>
   );
