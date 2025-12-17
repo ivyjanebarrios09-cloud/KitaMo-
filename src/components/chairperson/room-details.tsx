@@ -3,7 +3,8 @@ import {
   DollarSign,
   Users,
   CreditCard,
-  ClipboardList
+  ClipboardList,
+  FileText,
 } from 'lucide-react';
 import {
   Card,
@@ -29,15 +30,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-form';
 import type { Room } from '@/lib/types';
+import { GenerateStatements } from './generate-statements';
 
 export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
   return (
     <Tabs defaultValue="dashboard">
-      <TabsList>
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
         <TabsTrigger value="expenses">Expenses</TabsTrigger>
         <TabsTrigger value="deadlines">Fund Deadlines</TabsTrigger>
         <TabsTrigger value="students">Students</TabsTrigger>
+        <TabsTrigger value="statements">Generate Statements</TabsTrigger>
       </TabsList>
       <TabsContent value="dashboard">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-4">
@@ -132,6 +135,9 @@ export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
             </Table>
           </CardContent>
         </Card>
+      </TabsContent>
+      <TabsContent value="statements">
+        <GenerateStatements roomId={roomId} />
       </TabsContent>
     </Tabs>
   );
