@@ -72,7 +72,7 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
     }, [deadlines, payments]);
 
     const totalUnpaid = totalDue - totalPaid;
-    const paymentProgress = totalDue > 0 ? (totalPaid / totalDue) * 100 : 0;
+    const paymentProgress = totalDue > 0 ? (totalPaid / totalDue) * 100 : 100;
     const loading = deadlinesLoading || paymentsLoading;
 
 
@@ -126,9 +126,9 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
             </CardHeader>
             <CardContent>
                 {loading ? <Skeleton className="h-4 w-full" /> : <Progress value={paymentProgress} className="mb-2" />}
-                <p className="text-xs text-muted-foreground text-center">
-                {loading ? <Skeleton className="h-4 w-3/4 mx-auto mt-2" /> : `You've paid ${paymentProgress.toFixed(0)}% of your total dues.`}
-                </p>
+                <div className="text-xs text-muted-foreground text-center">
+                  {loading ? <Skeleton className="h-4 w-3/4 mx-auto mt-2" /> : `You've paid ${paymentProgress.toFixed(0)}% of your total dues.`}
+                </div>
             </CardContent>
             </Card>
         </div>
