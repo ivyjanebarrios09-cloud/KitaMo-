@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -78,7 +79,7 @@ export default function SignupPage() {
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: values.email,
-        displayName: values.fullName,
+        name: values.fullName,
         role: values.role,
       });
       
@@ -171,7 +172,7 @@ export default function SignupPage() {
                       <SelectItem value="chairperson">
                         Financial Chairperson
                       </SelectItem>
-                      <SelectItem value="student">Student / Member</SelectItem>
+                      <SelectItem value="student">Student</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
