@@ -20,7 +20,8 @@ function RoomHeaderSkeleton() {
 }
 
 
-export default function ChairpersonRoomPage({ params: { id } }: { params: { id: string } }) {
+export default function ChairpersonRoomPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const { data: room, loading } = useDoc<Room>(`rooms/${id}`);
 
   if (loading) {
