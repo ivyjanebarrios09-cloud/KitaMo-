@@ -4,24 +4,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users can read their own user profile
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isChairperson() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'chairperson';
+    }
+
+    function isRoomMember(roomId) {
+      return exists(/databases/$(database)/documents/roomMembers/{memberId})
+        && get(/databases/$(database)/documents/roomMembers/{memberId}).data.roomId == roomId
+        && get(/databases/$(database)/documents/roomMembers/{memberId}).data.userId == request.auth.uid;
+    }
+    
+    function isRoomChairperson(roomId) {
+        return get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
+    }
+
+    // Users can read and write their own user profile
     match /users/{userId} {
-      allow read: if request.auth.uid == userId;
-      allow write: if request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId;
     }
 
-    // A chairperson can create a room if the chairpersonId matches their UID.
-    // A chairperson can read or list rooms if they are the owner.
-    // Students can be handled later.
     match /rooms/{roomId} {
-       allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
-       allow get, update: if request.auth != null && get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
-       allow list: if request.auth != null && request.query.where.size == 1 && request.query.where[0].fieldPath == 'chairpersonId' && request.query.where[0].string_value == request.auth.uid;
+        // Allow listing rooms for authenticated users who are querying by chairpersonId
+        allow list: if request.auth != null && request.query.where.size == 1 && request.query.where[0].fieldPath == 'chairpersonId' && request.query.where[0].string_value == request.auth.uid;
+
+        // Allow reading a single room if they are a member of the room
+        allow get: if request.auth != null && isRoomMember(roomId);
+
+        // Allow creating a room if the user is a chairperson and they are the owner
+        allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
+        
+        // Allow chairperson to update or delete the room
+        allow update, delete: if isSignedIn() && isRoomChairperson(roomId);
     }
 
-     // Students can join a room if they are logged in.
+
+    // Students can join a room if they are logged in.
     match /roomMembers/{memberId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // You may want to add rules for read, update, delete as needed
+    }
+    
+    // Chairperson of a room can create, read, update, and delete deadlines for that room.
+    match /deadlines/{deadlineId} {
+        allow read, write: if isSignedIn() && isRoomChairperson(request.resource.data.roomId);
     }
   }
 }

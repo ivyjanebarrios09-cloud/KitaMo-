@@ -30,7 +30,7 @@ import { Button } from '@/components/ui/button';
 import { DeadlineReviewForm } from '@/components/chairperson/deadline-review-form';
 import type { Room } from '@/lib/types';
 
-export function RoomDetails({ room }: { room: Room }) {
+export function RoomDetails({ room, roomId }: { room: Room, roomId: string }) {
   return (
     <Tabs defaultValue="dashboard">
       <TabsList>
@@ -95,7 +95,7 @@ export function RoomDetails({ room }: { room: Room }) {
         </Card>
       </TabsContent>
       <TabsContent value="deadlines">
-        <DeadlineReviewForm />
+        <DeadlineReviewForm roomId={roomId} />
       </TabsContent>
       <TabsContent value="students">
         <Card>

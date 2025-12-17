@@ -70,7 +70,7 @@ export default function ChairpersonRoomPage({ params }: { params: { id: string }
             CODE: {room.code}
           </Badge>
         </div>
-        <RoomDetails room={room} />
+        <RoomDetails room={room} roomId={params.id} />
       </div>
     </div>
   );
