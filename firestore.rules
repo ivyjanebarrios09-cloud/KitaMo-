@@ -1,0 +1,21 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can read their own user profile
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+    }
+
+    // A chairperson can create a room if the chairpersonId matches their UID.
+    // A chairperson can read a room if they are the owner.
+    // Students can be handled later.
+    match /rooms/{roomId} {
+       allow create: if request.auth != null && request.resource.data.chairpersonId == request.auth.uid;
+       allow read, update: if request.auth != null && get(/databases/$(database)/documents/rooms/$(roomId)).data.chairpersonId == request.auth.uid;
+    }
+  }
+}

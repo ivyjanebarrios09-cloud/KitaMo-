@@ -53,8 +53,11 @@ export function useCollection<T = DocumentData>(
       },
       async (err: FirestoreError) => {
         if (err.code === 'permission-denied') {
+          // The path for a query is not directly on the object, we have to get it from the internal _query object.
+          // This is a bit of a hack, but it's the most reliable way to get the path for the error context.
+          const path = (memoizedQuery as any)._query.path.segments.join('/');
           const permissionError = new FirestorePermissionError({
-            path: memoizedQuery.path,
+            path: path,
             operation: 'list',
           } satisfies SecurityRuleContext);
           errorEmitter.emit('permission-error', permissionError);
