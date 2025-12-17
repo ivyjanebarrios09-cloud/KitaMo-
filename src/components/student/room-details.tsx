@@ -132,20 +132,26 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                         <TableHead>Due Date</TableHead>
                         <TableHead>Amount Required</TableHead>
                         <TableHead>Amount Paid</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
+                        <TableHead className="text-right">Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {deadlinesLoading && <TableRow><TableCell colSpan={5} className="text-center">Loading deadlines...</TableCell></TableRow>}
                     {!deadlinesLoading && deadlines?.length === 0 && <TableRow><TableCell colSpan={5} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
                     {deadlines?.map(deadline => {
+                        // TODO: Replace with actual payment status logic
+                        const isPaid = false; 
                         return (
                             <TableRow key={deadline.id}>
                                 <TableCell className="font-medium">{deadline.title}</TableCell>
                                 <TableCell>{format(new Date(deadline.dueDate), 'PP')}</TableCell>
                                 <TableCell>{new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(deadline.amountPerStudent)}</TableCell>
                                 <TableCell>₱0.00</TableCell>
-                                <TableCell className="text-right"><Button size="sm" disabled>Pay Now</Button></TableCell>
+                                <TableCell className="text-right">
+                                    <Badge variant={isPaid ? 'secondary' : 'destructive'}>
+                                        {isPaid ? 'Paid' : 'Unpaid'}
+                                    </Badge>
+                                </TableCell>
                             </TableRow>
                         )
                     })}
