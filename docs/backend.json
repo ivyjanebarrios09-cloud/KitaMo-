@@ -120,12 +120,12 @@
           "format": "date",
           "description": "The due date for the deadline."
         },
-        "month": {
+        "category": {
           "type": "string",
-          "description": "The billing month for the deadline."
+          "description": "The category for the deadline."
         }
       },
-      "required": ["title", "amountPerStudent", "dueDate", "month"]
+      "required": ["title", "amountPerStudent", "dueDate", "category"]
     },
     "payment": {
       "title": "Payment",

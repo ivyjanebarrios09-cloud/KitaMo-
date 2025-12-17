@@ -34,7 +34,7 @@ const formSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   amountPerStudent: z.coerce.number().min(0.01, 'Amount must be greater than 0.'),
   dueDate: z.string().min(1, 'Due date is required.'),
-  month: z.string().min(1, 'Billing month is required.'),
+  category: z.string().min(1, 'Category is required.'),
   announcement: z.string().optional(),
 });
 
@@ -51,7 +51,7 @@ export function DeadlineReviewForm({ roomId }: { roomId: string }) {
       title: '',
       amountPerStudent: 0,
       dueDate: '',
-      month: '',
+      category: '',
       announcement: '',
     },
   });
@@ -169,12 +169,12 @@ export function DeadlineReviewForm({ roomId }: { roomId: string }) {
               />
               <FormField
                 control={form.control}
-                name="month"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Billing Period</Label>
+                    <Label>Category</Label>
                     <FormControl>
-                      <Input placeholder="e.g., April 2024" {...field} />
+                      <Input placeholder="e.g., Event Contribution" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

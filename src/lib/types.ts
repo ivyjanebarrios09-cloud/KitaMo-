@@ -43,7 +43,7 @@ export type FundDeadline = {
   title: string;
   amountPerStudent: number;
   dueDate: string;
-  month: string;
+  category: string;
 };
 
 
