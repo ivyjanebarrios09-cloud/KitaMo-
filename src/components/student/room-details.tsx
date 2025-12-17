@@ -31,6 +31,7 @@ import { Expense, FundDeadline, Payment } from '@/lib/types';
 import { format } from 'date-fns';
 import { GeneratePersonalStatement } from './generate-personal-statement';
 import { PiggyBank, Wallet } from 'lucide-react';
+import { Skeleton } from '../ui/skeleton';
 
 interface StudentRoomDetailsProps {
     room: Room;
@@ -64,22 +65,10 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
     const { data: deadlines, loading: deadlinesLoading } = useCollection<FundDeadline>(deadlinesQuery);
     const { data: payments, loading: paymentsLoading } = useCollection<Payment>(paymentsQuery);
 
-    const { totalDue, totalPaid, paymentsByDeadline } = useMemo(() => {
+    const { totalDue, totalPaid } = useMemo(() => {
         const due = deadlines?.reduce((sum, d) => sum + d.amountPerStudent, 0) ?? 0;
         const paid = payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
-
-        const pbd: { [key: string]: number } = {};
-        if (deadlines && payments) {
-             deadlines.forEach(deadline => {
-                // This is a simple model. A real app might need more complex logic
-                // to associate payments with specific deadlines. Here we just check total paid vs total due for each.
-                const deadlineTotalPaid = payments.filter(p => new Date(p.date) <= new Date(deadline.dueDate)).reduce((acc, p) => acc + p.amount, 0);
-                 pbd[deadline.id] = deadlineTotalPaid;
-             });
-        }
-
-
-        return { totalDue: due, totalPaid: paid, paymentsByDeadline: pbd };
+        return { totalDue: due, totalPaid: paid };
     }, [deadlines, payments]);
 
     const totalUnpaid = totalDue - totalPaid;
@@ -103,9 +92,11 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
+                {loading ? <Skeleton className="h-8 w-3/4 mt-1" /> :
                 <div className="text-2xl font-bold text-red-600">
-                    {loading ? '...' : new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalUnpaid > 0 ? totalUnpaid : 0)}
+                    {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalUnpaid > 0 ? totalUnpaid : 0)}
                 </div>
+                }
                 <p className="text-xs text-muted-foreground">
                 Your outstanding balance for this room.
                 </p>
@@ -117,9 +108,11 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 <PiggyBank className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
+                {loading ? <Skeleton className="h-8 w-3/4 mt-1" /> :
                 <div className="text-2xl font-bold">
-                     {loading ? '...' : new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalPaid)}
+                     {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(totalPaid)}
                 </div>
+                }
                 <p className="text-xs text-muted-foreground">
                 Your total contributions to this room.
                 </p>
@@ -132,14 +125,13 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Progress value={paymentProgress} className="mb-2" />
+                {loading ? <Skeleton className="h-4 w-full" /> : <Progress value={paymentProgress} className="mb-2" />}
                 <p className="text-xs text-muted-foreground text-center">
-                {loading ? '...' : `You've paid ${paymentProgress.toFixed(0)}% of your total dues.`}
+                {loading ? <Skeleton className="h-4 w-3/4 mx-auto mt-2" /> : `You've paid ${paymentProgress.toFixed(0)}% of your total dues.`}
                 </p>
             </CardContent>
             </Card>
         </div>
-         <p className="text-sm text-muted-foreground text-center pt-6">Real-time balance and payment tracking is coming soon.</p>
       </TabsContent>
       <TabsContent value="expenses">
         <Card className="mt-4">
@@ -191,11 +183,13 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {deadlinesLoading && <TableRow><TableCell colSpan={5} className="text-center">Loading deadlines...</TableCell></TableRow>}
-                    {!deadlinesLoading && deadlines?.length === 0 && <TableRow><TableCell colSpan={5} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
+                    {loading && <TableRow><TableCell colSpan={5} className="text-center">Loading deadlines...</TableCell></TableRow>}
+                    {!loading && deadlines?.length === 0 && <TableRow><TableCell colSpan={5} className="text-center">No deadlines posted yet.</TableCell></TableRow>}
                     {deadlines?.map(deadline => {
-                        const amountPaidForDeadline = paymentsByDeadline[deadline.id] ?? 0;
+                        const paymentForDeadline = payments?.find(p => p.deadlineId === deadline.id);
+                        const amountPaidForDeadline = paymentForDeadline?.amount ?? 0;
                         const isPaid = amountPaidForDeadline >= deadline.amountPerStudent;
+
                         return (
                             <TableRow key={deadline.id}>
                                 <TableCell className="font-medium">{deadline.title}</TableCell>
@@ -212,7 +206,6 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
                     })}
                 </TableBody>
             </Table>
-             <p className="text-sm text-muted-foreground text-center pt-4">Payment functionality is coming soon.</p>
           </CardContent>
         </Card>
       </TabsContent>

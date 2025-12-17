@@ -64,6 +64,7 @@ export type Payment = {
     amount: number;
     date: string;
     note?: string;
+    deadlineId?: string; // Link payment to a specific deadline
 }
 
 export type StudentPaymentDetails = {
