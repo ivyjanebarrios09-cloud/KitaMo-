@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, DollarSign, Users, TrendingUp } from 'lucide-react';
@@ -6,13 +10,42 @@ import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from '@/components/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 const feature1Image = PlaceHolderImages.find((img) => img.id === 'feature1');
 const feature2Image = PlaceHolderImages.find((img) => img.id === 'feature2');
 const feature3Image = PlaceHolderImages.find((img) => img.id === 'feature3');
 
+function LoadingScreen() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="space-y-4 text-center">
+        <Logo className="mx-auto h-24 w-auto" />
+        <p className="text-muted-foreground">Loading your experience...</p>
+        <Skeleton className="h-4 w-48 mx-auto" />
+      </div>
+    </div>
+  );
+}
+
+
 export default function Home() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
+
+
+  if (loading || user) {
+    return <LoadingScreen />;
+  }
+  
   const features = [
     {
       icon: <DollarSign className="h-8 w-8 text-primary" />,
