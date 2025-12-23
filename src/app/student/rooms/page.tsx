@@ -30,14 +30,14 @@ function RoomCard({ room }: { room: JoinedRoom }) {
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
         </CardHeader>
         <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
                 Created by: {' '}
                 {loading ? (
                     <Skeleton className="h-4 w-32 inline-block" />
                 ) : (
                     <span>{chairperson?.name || 'Unknown'}</span>
                 )}
-            </p>
+            </div>
         </CardContent>
          <CardFooter className="flex justify-end">
           <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
