@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -63,7 +62,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <header className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Logo className="h-20 w-auto" />
+          <Logo className="h-16 w-auto" />
         </Link>
         <nav className="flex items-center gap-2">
           <Button variant="ghost" asChild>
@@ -86,11 +85,6 @@ export default function Home() {
             KitaMo! simplifies money management for clubs, teams, and organizations.
             Focus on your goals, not on spreadsheets.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Button size="lg" asChild>
-              <Link href="/signup">Get Started for Free</Link>
-            </Button>
-          </div>
         </section>
 
         <section className="container mx-auto px-4 py-16 md:py-24 lg:py-32">
