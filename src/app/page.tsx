@@ -104,15 +104,15 @@ export default function Home() {
           <div className="mt-12 grid gap-8 md:grid-cols-1 lg:grid-cols-3">
             {features.map((feature) => (
               <Card key={feature.title} className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
-                    {feature.icon}
+                <CardContent className="flex flex-col items-center text-center gap-4 pt-6">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    {React.cloneElement(feature.icon, { className: 'h-8 w-8 text-primary' })}
                   </div>
-                  <div className="flex-1">
+                  <div className="space-y-2">
                     <h3 className="text-xl font-bold">{feature.title}</h3>
-                    <p className="mt-2 text-muted-foreground">{feature.description}</p>
+                    <p className="text-muted-foreground">{feature.description}</p>
                   </div>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
