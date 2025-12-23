@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, User as UserIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StudentRoomDetails } from '@/components/student/room-details';
@@ -81,18 +81,16 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
               <span className="sr-only">Back</span>
             </Button>
           </Link>
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
             {room.name}
           </h1>
-          <div className="ml-auto flex items-center gap-2">
-             <Badge variant="outline">
-                {chairperson?.name || '...'}
-             </Badge>
-          </div>
+          <Badge variant="outline" className="ml-auto sm:ml-0 flex items-center gap-2">
+            <UserIcon className="h-3 w-3" />
+            <span>{chairperson?.name || '...'}</span>
+          </Badge>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
       </div>
     </div>
   );
 }
-
