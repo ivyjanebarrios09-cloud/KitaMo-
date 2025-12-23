@@ -21,7 +21,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function RoomCard({ room }: { room: JoinedRoom }) {
-
     return (
       <Card>
         <CardHeader>
