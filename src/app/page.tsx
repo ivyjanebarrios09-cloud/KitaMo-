@@ -103,16 +103,16 @@ export default function Home() {
           </div>
           <div className="mt-12 grid gap-8 md:grid-cols-1 lg:grid-cols-3">
             {features.map((feature) => (
-              <Card key={feature.title} className="flex flex-col">
-                <CardHeader>
-                  <div className="mb-4 flex items-center gap-4">
+              <Card key={feature.title} className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
                     {feature.icon}
-                    <CardTitle className="text-xl font-headline">{feature.title}</CardTitle>
                   </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold">{feature.title}</h3>
+                    <p className="mt-2 text-muted-foreground">{feature.description}</p>
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
