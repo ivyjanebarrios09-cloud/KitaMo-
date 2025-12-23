@@ -81,7 +81,7 @@ function StudentRoomPageContent() {
                 <span className="sr-only">Back</span>
               </Button>
             </Link>
-             <h1 className="flex-1 whitespace-nowrap text-xl font-semibold tracking-tight">
+             <h1 className="flex-1 text-xl font-semibold tracking-tight">
                 {room.name}
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
                     by {chairperson?.name || '...'}
