@@ -43,7 +43,7 @@ export type Expense = {
   title: string;
   description: string;
   amount: number;
-  date: string;
+  date: string; // Should be ISO string
   createdBy: string;
 };
 
@@ -52,7 +52,7 @@ export type FundDeadline = {
   // roomId is implicit from the path
   title: string;
   amountPerStudent: number;
-  dueDate: string;
+  dueDate: string; // Should be ISO string
   category: string;
 };
 
@@ -62,7 +62,7 @@ export type Payment = {
     // roomId is implicit from the path
     userId: string;
     amount: number;
-    date: string;
+    date: string; // Should be ISO string
     note?: string;
     deadlineId?: string; // Link payment to a specific deadline
 }
