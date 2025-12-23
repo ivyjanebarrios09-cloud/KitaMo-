@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { useUser, useCollection, useFirestore } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { collection, query, getDocs } from 'firebase/firestore';
-import type { Room, FundDeadline } from '@/lib/types'; // Using the simplified Room type
+import type { Room } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ import { format } from 'date-fns';
 
 // Simplified types for dashboard aggregation
 type AggregatedExpense = { id: string; type: 'expense'; date: string; title: string; amount: number; roomId: string; roomName: string; };
-type AggregatedPayment = { id: string; type: 'payment'; date: string; note?: string; amount: number; roomId: string; roomName: string; };
+type AggregatedPayment = { id: string; type: 'payment'; date: string; note?: string; amount: number; roomId: string; roomName: string; deadlineId?: string; };
 type AggregatedDeadline = { id: string; type: 'deadline'; dueDate: string; title: string; amountPerStudent: number; roomId: string; roomName: string; };
 type Transaction = AggregatedExpense | AggregatedPayment | AggregatedDeadline;
 type RoomMember = { id: string; userId: string; };
@@ -87,7 +87,7 @@ export default function ChairpersonDashboard() {
         const deadlinesPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/deadlines`)).then(snap => ({ snap, room })));
         const membersPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/members`)));
 
-        const [expenseResults, paymentResults, deadlineResults, memberSnapshots] = await Promise.all([
+        const [expenseResults, paymentResults, deadlineResults, memberResults] = await Promise.all([
              Promise.all(expensesPromises),
              Promise.all(paymentsPromises),
              Promise.all(deadlinesPromises),
@@ -97,7 +97,7 @@ export default function ChairpersonDashboard() {
         const allExpenses = expenseResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'expense', roomId: room.id, roomName: room.name } as AggregatedExpense)));
         const allPayments = paymentResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'payment', roomId: room.id, roomName: room.name } as AggregatedPayment)));
         const allDeadlines = deadlineResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({ ...doc.data(), id: doc.id, type: 'deadline', roomId: room.id, roomName: room.name } as AggregatedDeadline)));
-        const allMembers = memberSnapshots.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id } as RoomMember)));
+        const allMembers = memberResults.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id } as RoomMember)));
         
         setAggregatedData({ expenses: allExpenses, payments: allPayments, deadlines: allDeadlines, members: allMembers });
         setAggregationLoading(false);
@@ -195,18 +195,19 @@ export default function ChairpersonDashboard() {
                     <TableHead>Date</TableHead>
                     <TableHead>Room</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {loading && Array.from({length: 5}).map((_, i) => (
                         <TableRow key={i}>
-                            <TableCell colSpan={5}><Skeleton className="h-5 w-full" /></TableCell>
+                            <TableCell colSpan={6}><Skeleton className="h-5 w-full" /></TableCell>
                         </TableRow>
                     ))}
                     {!loading && recentTransactions.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={5} className="text-center">No transactions yet.</TableCell>
+                            <TableCell colSpan={6} className="text-center">No transactions yet.</TableCell>
                         </TableRow>
                     )}
                     {!loading && recentTransactions.map((tx) => {
@@ -214,6 +215,12 @@ export default function ChairpersonDashboard() {
                         const amount = tx.type === 'deadline' ? tx.amountPerStudent : tx.amount;
                         const description = tx.type === 'payment' ? tx.note : tx.title;
                         const badgeVariant = tx.type === 'expense' ? 'destructive' : (tx.type === 'deadline' ? 'outline' : 'secondary');
+                        
+                        let status: React.ReactNode = null;
+                        if (tx.type === 'deadline') {
+                            const hasPayment = aggregatedData.payments.some(p => p.deadlineId === tx.id);
+                            status = <Badge variant={hasPayment ? 'secondary' : 'destructive'}>{hasPayment ? 'Paid' : 'Unpaid'}</Badge>;
+                        }
 
                         return(
                         <TableRow key={`${tx.type}-${tx.id}`}>
@@ -229,6 +236,7 @@ export default function ChairpersonDashboard() {
                                 </Button>
                             </TableCell>
                             <TableCell>{description}</TableCell>
+                            <TableCell>{status}</TableCell>
                             <TableCell className="text-right font-medium">
                                  {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)}
                             </TableCell>
