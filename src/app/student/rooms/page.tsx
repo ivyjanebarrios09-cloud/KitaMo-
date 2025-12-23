@@ -27,15 +27,17 @@ function RoomCard({ room }: { room: JoinedRoom }) {
         <CardHeader>
           <CardTitle>{room.roomName}</CardTitle>
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
-          <CardDescription className="pt-2">
-            Created by: {' '}
-            {loading ? (
-              <Skeleton className="h-4 w-32 inline-block" />
-            ) : (
-              <span>{chairperson?.name || '...'}</span>
-            )}
-          </CardDescription>
         </CardHeader>
+        <CardContent>
+            <p className="text-sm text-muted-foreground">
+                Created by: {' '}
+                {loading ? (
+                    <Skeleton className="h-4 w-32 inline-block" />
+                ) : (
+                    <span>{chairperson?.name || 'Unknown'}</span>
+                )}
+            </p>
+        </CardContent>
          <CardFooter className="flex justify-end">
           <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
               <Button variant="outline" size="sm">
@@ -56,8 +58,10 @@ function RoomsSkeleton() {
           <CardHeader>
             <Skeleton className="h-6 w-3/4" />
             <Skeleton className="mt-2 h-4 w-full" />
-            <Skeleton className="mt-2 h-4 w-1/2" />
           </CardHeader>
+          <CardContent>
+            <Skeleton className="mt-2 h-4 w-1/2" />
+          </CardContent>
           <CardFooter className="flex justify-end">
              <Skeleton className="h-9 w-28" />
           </CardFooter>
