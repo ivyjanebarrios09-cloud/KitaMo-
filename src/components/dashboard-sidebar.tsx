@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -125,12 +126,12 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
             key={link.label}
             href={link.href(params, searchParams)}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-foreground',
+              'flex flex-col items-center justify-center text-muted-foreground transition-colors hover:text-foreground p-2 rounded-md',
               isActive(link) && 'text-primary'
             )}
           >
-            {React.cloneElement(link.icon as React.ReactElement, { className: 'h-5 w-5' })}
-            <span className="text-xs">{link.label.split(' ')[0]}</span>
+            {React.cloneElement(link.icon as React.ReactElement, { className: 'h-6 w-6' })}
+            <span className="sr-only">{link.label}</span>
           </Link>
         ))}
       </nav>
