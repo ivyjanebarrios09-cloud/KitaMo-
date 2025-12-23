@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import { ChevronLeft, User as UserIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ function RoomHeaderSkeleton() {
 }
 
 function StudentRoomPageContent() {
-  const params = React.use(Promise.resolve(useParams() as { id: string }));
+  const params = useParams() as { id: string };
   const roomId = params.id;
   const searchParams = useSearchParams();
   const chairpersonId = searchParams.get('chairpersonId');
@@ -95,7 +95,7 @@ function StudentRoomPageContent() {
   );
 }
 
-export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
+export default function StudentRoomPage() {
   return (
     <Suspense fallback={<RoomHeaderSkeleton />}>
       <StudentRoomPageContent />
