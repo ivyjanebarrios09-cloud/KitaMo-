@@ -17,6 +17,7 @@ import {
   FileText,
   AreaChart,
   LayoutDashboard,
+  Megaphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from './logo';
@@ -36,6 +37,7 @@ const navLinks: NavLink[] = [
   { href: () => '/chairperson/dashboard', icon: <Home />, label: 'Dashboard', isMain: true, requiredRole: 'chairperson' },
   { href: () => '/chairperson/rooms', icon: <Users />, label: 'Rooms', isMain: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}`, icon: <Home />, label: 'Room Dashboard', isRoomView: true, requiredRole: 'chairperson' },
+  { href: (params) => `/chairperson/rooms/${params.id}/announcements`, icon: <Megaphone />, label: 'Announcements', isRoomView: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}/expenses`, icon: <Wallet />, label: 'Expenses', isRoomView: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}/deadlines`, icon: <CalendarCheck />, label: 'Fund Deadlines', isRoomView: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}/students`, icon: <Users />, label: 'Students', isRoomView: true, requiredRole: 'chairperson' },
@@ -46,6 +48,7 @@ const navLinks: NavLink[] = [
   { href: () => '/student/dashboard', icon: <Home />, label: 'Dashboard', isMain: true, requiredRole: 'student' },
   { href: () => '/student/rooms', icon: <Users />, label: 'My Rooms', isMain: true, requiredRole: 'student' },
   { id: 'dashboard', href: (params, sp) => `/student/rooms/${params.id}?${new URLSearchParams({ chairpersonId: sp?.get('chairpersonId') || '', view: 'dashboard' })}`, icon: <LayoutDashboard />, label: 'My Dashboard', isRoomView: true, requiredRole: 'student' },
+  { id: 'announcements', href: (params, sp) => `/student/rooms/${params.id}?${new URLSearchParams({ chairpersonId: sp?.get('chairpersonId') || '', view: 'announcements' })}`, icon: <Megaphone />, label: 'Announcements', isRoomView: true, requiredRole: 'student' },
   { id: 'expenses', href: (params, sp) => `/student/rooms/${params.id}?${new URLSearchParams({ chairpersonId: sp?.get('chairpersonId') || '', view: 'expenses' })}`, icon: <Wallet />, label: 'Expenses', isRoomView: true, requiredRole: 'student' },
   { id: 'deadlines', href: (params, sp) => `/student/rooms/${params.id}?${new URLSearchParams({ chairpersonId: sp?.get('chairpersonId') || '', view: 'deadlines' })}`, icon: <CalendarCheck />, label: 'Deadlines', isRoomView: true, requiredRole: 'student' },
   { id: 'statements', href: (params, sp) => `/student/rooms/${params.id}?${new URLSearchParams({ chairpersonId: sp?.get('chairpersonId') || '', view: 'statements' })}`, icon: <FileText />, label: 'Statements', isRoomView: true, requiredRole: 'student' },

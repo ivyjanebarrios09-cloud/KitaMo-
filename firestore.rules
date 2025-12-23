@@ -12,6 +12,11 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
+    
+    function isStudent() {
+      // Check if user has a 'student' role in their user document
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'student';
+    }
 
     // Users can read and write their own profile and joined rooms list.
     match /users/{userId} {
@@ -36,11 +41,25 @@ service cloud.firestore {
        match /expenses/{expenseId} {
           // Room owner can manage expenses
           allow read, write: if isOwner(userId);
+
+          match /seenBy/{studentId} {
+            // A student can mark a post as seen for themselves
+            allow create, read: if isOwner(studentId);
+            // The room owner can list who has seen the post
+            allow list: if isOwner(userId);
+          }
        }
 
        match /deadlines/{deadlineId} {
           // Room owner can manage deadlines
           allow read, write: if isOwner(userId);
+
+          match /seenBy/{studentId} {
+            // A student can mark a post as seen for themselves
+            allow create, read: if isOwner(studentId);
+            // The room owner can list who has seen the post
+            allow list: if isOwner(userId);
+          }
        }
        
        match /payments/{paymentId} {

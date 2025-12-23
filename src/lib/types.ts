@@ -69,6 +69,12 @@ export type Payment = {
     deadlineId?: string; // Link payment to a specific deadline
 }
 
+export type PostSeen = {
+    id: string;
+    userId: string;
+    seenAt: Timestamp;
+}
+
 export type StudentPaymentDetails = {
   student: User;
   amountPaid: number;

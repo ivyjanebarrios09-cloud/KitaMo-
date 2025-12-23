@@ -52,18 +52,18 @@
       "required": ["name", "code", "createdAt"]
     },
     "joinedRoom": {
-        "title": "Joined Room",
-        "description": "A reference to a room that a student has joined.",
-        "type": "object",
-        "properties": {
-            "roomId": { "type": "string", "description": "The ID of the joined room." },
-            "chairpersonId": { "type": "string", "description": "The UID of the chairperson who owns the room." },
-            "chairpersonName": { "type": "string", "description": "The name of the chairperson who owns the room." },
-            "roomName": { "type": "string", "description": "The name of the joined room." },
-            "roomDescription": { "type": "string", "description": "The description of the joined room." },
-            "joinedAt": { "type": "string", "format": "date-time", "description": "The date and time the student joined the room." }
-        },
-        "required": ["roomId", "chairpersonId", "chairpersonName", "roomName", "joinedAt"]
+      "title": "Joined Room",
+      "description": "A reference to a room that a student has joined.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the joined room." },
+        "chairpersonId": { "type": "string", "description": "The UID of the chairperson who owns the room." },
+        "displayName": { "type": "string", "description": "The name of the chairperson who owns the room." },
+        "roomName": { "type": "string", "description": "The name of the joined room." },
+        "roomDescription": { "type": "string", "description": "The description of the joined room." },
+        "joinedAt": { "type": "string", "format": "date-time", "description": "The date and time the student joined the room." }
+      },
+      "required": ["roomId", "chairpersonId", "displayName", "roomName", "joinedAt"]
     },
     "roomMember": {
       "title": "Room Member",
@@ -165,6 +165,16 @@
         }
       },
       "required": ["userId", "amount", "date"]
+    },
+    "postSeen": {
+      "title": "Post Seen",
+      "description": "Records that a student has seen a post (expense or deadline).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the student who saw the post." },
+        "seenAt": { "type": "string", "format": "date-time", "description": "The timestamp when the post was seen." }
+      },
+      "required": ["userId", "seenAt"]
     }
   },
   "auth": {
@@ -201,11 +211,23 @@
       },
       "description": "Stores expense records for a specific room."
     },
+    "/users/{userId}/rooms/{roomId}/expenses/{expenseId}/seenBy/{studentId}": {
+      "schema": {
+        "$ref": "#/entities/postSeen"
+      },
+      "description": "Tracks which students have seen a specific expense post."
+    },
     "/users/{userId}/rooms/{roomId}/deadlines/{deadlineId}": {
       "schema": {
         "$ref": "#/entities/deadline"
       },
       "description": "Stores fund deadline information for a specific room."
+    },
+    "/users/{userId}/rooms/{roomId}/deadlines/{deadlineId}/seenBy/{studentId}": {
+      "schema": {
+        "$ref": "#/entities/postSeen"
+      },
+      "description": "Tracks which students have seen a specific deadline post."
     },
     "/users/{userId}/rooms/{roomId}/payments/{paymentId}": {
       "schema": {

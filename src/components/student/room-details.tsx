@@ -1,4 +1,3 @@
-
 'use client';
 import {
   Card,
@@ -24,10 +23,11 @@ import { useCollection, useFirestore } from '@/firebase';
 import type { Expense, FundDeadline, Payment } from '@/lib/types';
 import { format } from 'date-fns';
 import { GeneratePersonalStatement } from './generate-personal-statement';
-import { PiggyBank, Wallet, LayoutDashboard, CalendarCheck, FileText } from 'lucide-react';
+import { PiggyBank, Wallet, LayoutDashboard, CalendarCheck, FileText, Megaphone } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { AnnouncementsFeed } from './announcements-feed';
 
-export type ActiveView = 'dashboard' | 'expenses' | 'deadlines' | 'statements';
+export type ActiveView = 'dashboard' | 'expenses' | 'deadlines' | 'statements' | 'announcements';
 
 interface StudentRoomDetailsProps {
     room: Room;
@@ -39,6 +39,7 @@ interface StudentRoomDetailsProps {
 
 const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'My Dashboard' },
+    { id: 'announcements', icon: Megaphone, label: 'Announcements' },
     { id: 'expenses', icon: Wallet, label: 'Expenses' },
     { id: 'deadlines', icon: CalendarCheck, label: 'Deadlines' },
     { id: 'statements', icon: FileText, label: 'Statements' },
@@ -166,6 +167,14 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId, act
                         </Card>
                     </div>
                 </div>
+            ),
+            announcements: (
+                <AnnouncementsFeed 
+                    chairpersonId={chairpersonId} 
+                    roomId={roomId} 
+                    studentId={studentId}
+                    role="student"
+                />
             ),
             expenses: (
                 <Card>
