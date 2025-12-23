@@ -28,14 +28,14 @@ function RoomCard({ room }: { room: JoinedRoom }) {
         <CardHeader>
           <CardTitle>{room.roomName}</CardTitle>
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
-           <CardDescription className="pt-2">
+           <div className="text-sm text-muted-foreground pt-2">
                 Created by:{' '}
                 {loading ? (
                     <Skeleton className="h-4 w-32 inline-block" />
                 ) : (
                     <span className="font-medium text-foreground">{chairperson?.name || 'Unknown'}</span>
                 )}
-            </CardDescription>
+            </div>
         </CardHeader>
         <CardContent>
             {/* Content can be used for other stats in the future */}
