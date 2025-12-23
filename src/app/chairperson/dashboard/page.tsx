@@ -85,7 +85,7 @@ export default function ChairpersonDashboard() {
         const [expenseResults, paymentResults, memberSnapshots] = await Promise.all([
              Promise.all(expensesPromises),
              Promise.all(paymentsPromises),
-             Promise.all(memberSnapshots)
+             Promise.all(membersPromises)
         ]);
 
         const allExpenses = expenseResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'expense', roomId: room.id, roomName: room.name } as AggregatedExpense)));
