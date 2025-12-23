@@ -49,6 +49,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'sheetjs-style';
 import { format } from 'date-fns';
 import { ScrollArea } from '../ui/scroll-area';
+import { Badge } from '../ui/badge';
 
 const statementOptions = [
   {
