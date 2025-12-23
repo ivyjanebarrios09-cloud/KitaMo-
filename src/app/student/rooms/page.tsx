@@ -2,10 +2,10 @@
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
-import type { JoinedRoom } from '@/lib/types';
+import type { JoinedRoom, User as UserData } from '@/lib/types';
 import Link from 'next/link';
 import {
   Card,
@@ -19,13 +19,18 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function RoomCard({ room }: { room: JoinedRoom }) {
-    // The link should now include chairpersonId, but we don't have it here yet.
-    // This will be part of the next step.
+    const { data: chairperson, loading } = useDoc<UserData>(`users/${room.chairpersonId}`);
+
     return (
       <Card>
         <CardHeader>
           <CardTitle>{room.roomName}</CardTitle>
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
+          {loading ? (
+            <Skeleton className="h-4 w-32 mt-2" />
+          ) : (
+             chairperson && <CardDescription className="pt-2">Created by: {chairperson.name}</CardDescription>
+          )}
         </CardHeader>
          <CardFooter className="flex justify-end">
           <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
@@ -47,6 +52,7 @@ function RoomsSkeleton() {
           <CardHeader>
             <Skeleton className="h-6 w-3/4" />
             <Skeleton className="mt-2 h-4 w-full" />
+            <Skeleton className="mt-2 h-4 w-1/2" />
           </CardHeader>
           <CardFooter className="flex justify-end">
              <Skeleton className="h-9 w-28" />
