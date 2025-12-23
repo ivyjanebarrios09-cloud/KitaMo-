@@ -140,11 +140,11 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="container mx-auto flex items-center justify-between px-4 py-6 md:px-6">
+      <footer className="container mx-auto flex flex-col sm:flex-row items-center justify-between px-4 py-6 md:px-6 gap-4">
         <div className="flex items-center gap-2">
           <Logo className="h-16 w-auto" />
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground text-center sm:text-right">
           &copy; {new Date().getFullYear()} KitaMo!. All rights reserved.
         </p>
       </footer>

@@ -85,10 +85,11 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
 
 
   return (
-    <div className="fixed inset-y-0 left-0 z-20 flex h-full flex-col border-r">
-        <aside className="hidden border-r bg-background sm:flex sm:flex-col">
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-20 hidden h-full flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 py-4">
-            <Link href={`/${role}/dashboard`}>
+            <Link href={`/${role}/dashboard`} className="flex h-16 items-center justify-center">
                 <Logo className="h-12 w-auto" />
             </Link>
             <TooltipProvider>
@@ -102,7 +103,7 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
                         isActive(link) && 'bg-accent text-accent-foreground'
                     )}
                     >
-                    {link.icon}
+                    {React.cloneElement(link.icon as React.ReactElement, { className: 'h-5 w-5' })}
                     <span className="sr-only">{link.label}</span>
                     </Link>
                 </TooltipTrigger>
@@ -111,7 +112,24 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
             ))}
             </TooltipProvider>
         </nav>
-        </aside>
-    </div>
+      </aside>
+
+      {/* Mobile Bottom Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-20 flex h-16 items-center justify-around border-t bg-background sm:hidden">
+        {visibleLinks.map((link) => (
+          <Link
+            key={link.label}
+            href={link.href(params, searchParams)}
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-foreground',
+              isActive(link) && 'text-primary'
+            )}
+          >
+            {React.cloneElement(link.icon as React.ReactElement, { className: 'h-5 w-5' })}
+            <span className="text-xs">{link.label.split(' ')[0]}</span>
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 }

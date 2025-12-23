@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function RoomHeaderSkeleton() {
     return (
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <Skeleton className="h-7 w-7 rounded-full" />
             <Skeleton className="h-6 w-48" />
             <Skeleton className="ml-auto h-6 w-32" />
@@ -33,12 +33,12 @@ export default function ChairpersonRoomLayout({
   const loading = userLoading || roomLoading;
 
   return (
-    <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 md:gap-8">
-      <div className="mx-auto grid w-full max-w-6xl gap-2">
+    <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 md:gap-8">
+      <div className="mx-auto grid w-full max-w-6xl gap-2 px-4 sm:px-0">
         {loading ? <RoomHeaderSkeleton /> : (
             room ? (
-                 <div className="flex items-center gap-4">
-                    <Link href="/chairperson/rooms">
+                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                    <Link href="/chairperson/rooms" className="hidden sm:block">
                         <Button variant="outline" size="icon" className="h-7 w-7">
                         <ChevronLeft className="h-4 w-4" />
                         <span className="sr-only">Back</span>
@@ -64,7 +64,7 @@ export default function ChairpersonRoomLayout({
             )
         )}
       </div>
-      <div className="mx-auto grid w-full max-w-6xl items-start gap-6">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-6 px-4 sm:px-0">
         {loading && <Skeleton className="h-96 w-full" />}
         {!loading && room && children}
       </div>

@@ -100,12 +100,12 @@ function StudentDeadlines({
   }
 
   return (
-    <div className="px-4 pb-4">
+    <div className="px-1 sm:px-4 pb-4 overflow-x-auto">
         <Table>
             <TableHeader>
                 <TableRow>
                     <TableHead>Deadline</TableHead>
-                    <TableHead>Amount Due</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                 </TableRow>
@@ -135,7 +135,7 @@ function StudentDeadlines({
                                         onClick={() => handleRecordPayment(deadline)}
                                         disabled={loadingPayment === deadline.id}
                                     >
-                                        {loadingPayment === deadline.id ? 'Recording...' : 'Record Payment'}
+                                        {loadingPayment === deadline.id ? '...' : 'Record Pmt.'}
                                     </Button>
                                 )}
                             </TableCell>
@@ -213,11 +213,11 @@ function StudentRow({
             </Avatar>
             <div className="grid gap-1 text-left">
               <p className="text-sm font-medium leading-none">{user.name}</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground truncate max-w-[150px] sm:max-w-none">{user.email}</p>
             </div>
           </div>
           <div className="flex-1" />
-           <div className="flex items-center gap-6 pr-4">
+           <div className="hidden sm:flex items-center gap-6 pr-4">
                 <div className="text-center">
                     <p className="text-sm text-muted-foreground">Status</p>
                     <Badge variant={allDeadlinesPaid ? 'secondary' : 'destructive'}>
@@ -225,11 +225,11 @@ function StudentRow({
                     </Badge>
                 </div>
                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Total Paid</p>
+                    <p className="text-sm text-muted-foreground">Paid</p>
                      <p className="font-medium">₱{totalPaid.toFixed(2)}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Total Owed</p>
+                    <p className="text-sm text-muted-foreground">Owed</p>
                     <p className="font-medium">₱{(totalDue - totalPaid).toFixed(2)}</p>
                 </div>
            </div>

@@ -143,14 +143,14 @@ export default function ChairpersonDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/">
+        <Link href="/" className="sm:hidden">
           <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-xl sm:text-3xl font-bold">Dashboard</h1>
           {welcomeMessage}
         </div>
       </div>
@@ -192,10 +192,10 @@ export default function ChairpersonDashboard() {
                 <TableHeader>
                     <TableRow>
                     <TableHead>Type</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Room</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden sm:table-cell">Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -227,7 +227,7 @@ export default function ChairpersonDashboard() {
                             <TableCell>
                                 <Badge variant={badgeVariant}>{tx.type}</Badge>
                             </TableCell>
-                            <TableCell>{format(new Date(date), 'PP')}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{format(new Date(date), 'PP')}</TableCell>
                             <TableCell>
                                 <Button variant="link" asChild className="p-0 h-auto font-normal">
                                     <Link href={`/chairperson/rooms/${tx.roomId}`}>
@@ -235,8 +235,8 @@ export default function ChairpersonDashboard() {
                                     </Link>
                                 </Button>
                             </TableCell>
-                            <TableCell>{description}</TableCell>
-                            <TableCell>{status}</TableCell>
+                            <TableCell className="max-w-[150px] truncate">{description}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{status}</TableCell>
                             <TableCell className="text-right font-medium">
                                  {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)}
                             </TableCell>
