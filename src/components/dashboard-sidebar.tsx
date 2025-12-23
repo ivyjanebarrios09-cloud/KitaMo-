@@ -15,7 +15,6 @@ import {
   CalendarCheck,
   FileText,
   AreaChart,
-  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from './logo';
@@ -53,7 +52,7 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
     : studentNavLinks;
 
   return (
-    <aside className="hidden border-r bg-background sm:flex sm:flex-col justify-between">
+    <aside className="hidden border-r bg-background sm:flex sm:flex-col justify-start">
       <nav className="flex flex-col items-center gap-4 px-2 py-4">
         <Link href={`/${role}/dashboard`}>
             <Logo className="h-12 w-auto" />
@@ -76,22 +75,6 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
               <TooltipContent side="right">{link.label}</TooltipContent>
             </Tooltip>
           ))}
-        </TooltipProvider>
-      </nav>
-      <nav className="flex flex-col items-center gap-4 px-2 py-4">
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                    href="/settings"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                    >
-                    <Settings />
-                    <span className="sr-only">Settings</span>
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Settings</TooltipContent>
-            </Tooltip>
         </TooltipProvider>
       </nav>
     </aside>
