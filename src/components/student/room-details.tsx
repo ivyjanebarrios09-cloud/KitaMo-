@@ -262,16 +262,16 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
 
   return (
     <div className="flex flex-col md:flex-row gap-6 mt-4">
-        <nav className="flex flex-row md:flex-col gap-2">
+        <nav className="flex flex-col gap-2">
             {navItems.map(item => (
                 <Button 
                     key={item.id}
                     variant={activeView === item.id ? 'secondary' : 'ghost'}
-                    className="justify-start gap-3 w-full md:w-48"
+                    className="justify-start gap-3 w-full"
                     onClick={() => setActiveView(item.id)}
                 >
                     <item.icon className="h-5 w-5" />
-                    <span className="hidden md:inline">{item.label}</span>
+                    <span>{item.label}</span>
                 </Button>
             ))}
         </nav>
