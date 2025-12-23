@@ -1,22 +1,16 @@
+
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, DollarSign, Users, TrendingUp } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from '@/components/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
-const feature1Image = PlaceHolderImages.find((img) => img.id === 'feature1');
-const feature2Image = PlaceHolderImages.find((img) => img.id === 'feature2');
-const feature3Image = PlaceHolderImages.find((img) => img.id === 'feature3');
 
 function LoadingScreen() {
   return (
@@ -51,19 +45,16 @@ export default function Home() {
       icon: <DollarSign className="h-8 w-8 text-primary" />,
       title: 'Effortless Expense Tracking',
       description: 'Easily post expenses and fund deadlines. Keep everyone in the loop with automated calculations and clear summaries.',
-      image: feature1Image,
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: 'Seamless Member Management',
       description: 'Manage students, track payments, and view balances at a glance. Onboard new members with a simple, unique join code.',
-      image: feature2Image,
     },
     {
       icon: <TrendingUp className="h-8 w-8 text-primary" />,
       title: 'AI-Powered Insights',
       description: 'Our smart assistant helps you craft clear, stress-free communication for fund deadlines, improving clarity and compliance.',
-      image: feature3Image,
     },
   ];
 
@@ -101,21 +92,6 @@ export default function Home() {
           </div>
         </section>
 
-        {heroImage && (
-          <section className="container mx-auto px-4">
-            <div className="overflow-hidden rounded-lg border shadow-lg">
-              <Image
-                src={heroImage.imageUrl}
-                alt={heroImage.description}
-                width={1200}
-                height={600}
-                className="w-full"
-                data-ai-hint={heroImage.imageHint}
-              />
-            </div>
-          </section>
-        )}
-
         <section className="container mx-auto px-4 py-16 md:py-24 lg:py-32">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">
@@ -128,18 +104,6 @@ export default function Home() {
           <div className="mt-12 grid gap-8 md:grid-cols-1 lg:grid-cols-3">
             {features.map((feature) => (
               <Card key={feature.title} className="flex flex-col">
-                {feature.image && (
-                  <CardContent className="p-0">
-                    <Image
-                      src={feature.image.imageUrl}
-                      alt={feature.image.description}
-                      width={600}
-                      height={400}
-                      className="w-full rounded-t-lg"
-                      data-ai-hint={feature.image.imageHint}
-                    />
-                  </CardContent>
-                )}
                 <CardHeader>
                   <div className="mb-4 flex items-center gap-4">
                     {feature.icon}
