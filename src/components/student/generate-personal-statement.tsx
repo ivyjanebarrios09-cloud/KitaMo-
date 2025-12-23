@@ -24,10 +24,10 @@ import {
   Loader2,
   Receipt,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useUser, useFirestore } from '@/firebase';
-import { collection, getDocs, query } from 'firebase/firestore';
-import type { FundDeadline, Room, User } from '@/lib/types';
+import { useMemo, useState } from 'react';
+import { useUser, useFirestore, useCollection } from '@/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import type { FundDeadline, Room, User, Payment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -57,6 +57,12 @@ type LoadingState = {
   view: boolean;
 };
 
+// Extend jsPDF with autoTable
+interface jsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: any) => jsPDF;
+}
+
+
 export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { room: Room, roomId: string, chairpersonId: string }) {
   const [selectedMonth, setSelectedMonth] = useState<string>();
   const [loading, setLoading] = useState<Record<string, LoadingState>>({
@@ -67,16 +73,26 @@ export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { roo
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  
+  const basePath = useMemo(() => chairpersonId && roomId ? `users/${chairpersonId}/rooms/${roomId}` : null, [chairpersonId, roomId]);
+
+  const { data: deadlines, loading: deadlinesLoading } = useCollection<FundDeadline>(basePath ? `${basePath}/deadlines` : null);
+  
+  const paymentsQuery = useMemo(() => {
+    if (!basePath || !user) return null;
+    return query(collection(db, `${basePath}/payments`), where('userId', '==', user.uid));
+  }, [db, basePath, user]);
+  const { data: payments, loading: paymentsLoading } = useCollection<Payment>(paymentsQuery);
+
 
   const handleGeneratePDF = async () => {
-    if (!user) return;
+    if (!user || !deadlines || !payments) {
+        toast({ title: "Data still loading...", description: "Please wait a moment and try again." });
+        return;
+    }
     setLoading(prev => ({ ...prev, personal_expense_report: { ...prev.personal_expense_report, pdf: true } }));
 
     try {
-      const deadlinesQuery = query(collection(db, `users/${chairpersonId}/rooms/${roomId}/deadlines`));
-      const querySnapshot = await getDocs(deadlinesQuery);
-      const deadlines = querySnapshot.docs.map(doc => doc.data() as FundDeadline);
-
       if (deadlines.length === 0) {
         toast({
           title: 'No Data',
@@ -86,7 +102,7 @@ export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { roo
         return;
       }
       
-      const doc = new jsPDF();
+      const doc = new jsPDF() as jsPDFWithAutoTable;
       
       // Header
       doc.setFontSize(20);
@@ -103,10 +119,13 @@ export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { roo
       const tableRows: (string | number)[][] = [];
 
       let totalDue = 0;
-      let totalPaid = 0; // Placeholder
+      let totalPaidByStudent = 0;
+      
       deadlines.forEach(deadline => {
-        const amountPaid = 0; // Placeholder for now
+        const paymentForDeadline = payments.find(p => p.deadlineId === deadline.id);
+        const amountPaid = paymentForDeadline?.amount ?? 0;
         const isPaid = amountPaid >= deadline.amountPerStudent;
+
         const deadlineData = [
           deadline.title,
           format(new Date(deadline.dueDate), 'PP'),
@@ -116,32 +135,34 @@ export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { roo
         ];
         tableRows.push(deadlineData);
         totalDue += deadline.amountPerStudent;
-        totalPaid += amountPaid;
       });
 
-      (doc as any).autoTable({
+      totalPaidByStudent = payments.reduce((sum, p) => sum + p.amount, 0);
+
+      doc.autoTable({
         startY: 60,
         head: [tableColumn],
         body: tableRows,
       });
 
       // Summary
-      const finalY = (doc as any).lastAutoTable.finalY;
+      const finalY = doc.autoTable.previous.finalY;
       doc.setFontSize(12);
       doc.text("Summary", 14, finalY + 10);
       doc.setFontSize(10);
       doc.text(`Total Amount Due: PHP ${totalDue.toFixed(2)}`, 14, finalY + 16);
-      doc.text(`Total Amount Paid: PHP ${totalPaid.toFixed(2)}`, 14, finalY + 22);
+      doc.text(`Total Amount Paid: PHP ${totalPaidByStudent.toFixed(2)}`, 14, finalY + 22);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Remaining Balance: PHP ${(totalDue - totalPaid).toFixed(2)}`, 14, finalY + 30);
+      doc.text(`Remaining Balance: PHP ${(totalDue - totalPaidByStudent).toFixed(2)}`, 14, finalY + 30);
+      doc.setFont('helvetica', 'normal');
 
       // Footer
-      doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.text(`Page ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10);
 
       doc.save(`Personal_Statement_${user.displayName?.replace(/\s/g, '_')}_${room.name.replace(/\s/g, '_')}.pdf`);
+      toast({ title: "PDF Generated", description: "Your personal statement has been downloaded." });
 
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -195,11 +216,11 @@ export function GeneratePersonalStatement({ room, roomId, chairpersonId }: { roo
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <Button variant="outline" disabled>View Statement</Button>
+            <CardFooter className="flex flex-wrap justify-end gap-2">
+              <Button variant="outline" disabled>View</Button>
               <Button 
                 variant="outline" 
-                disabled={option.key !== 'personal_expense_report' || loading[option.key]?.pdf}
+                disabled={option.key !== 'personal_expense_report' || loading[option.key]?.pdf || deadlinesLoading || paymentsLoading}
                 onClick={option.key === 'personal_expense_report' ? handleGeneratePDF : undefined}
                 >
                 {loading[option.key]?.pdf ? (
