@@ -1,3 +1,4 @@
+
 'use client';
 import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
@@ -14,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { CreateRoomButton } from '@/components/chairperson/create-room-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileText, DollarSign, Users, ArrowRight, ArrowLeft } from 'lucide-react';
+import { FileText, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 function RoomCard({ room }: { room: Room }) {
@@ -45,7 +46,6 @@ function RoomCard({ room }: { room: Room }) {
                 )}
             </div>
             <div className="flex items-center gap-1">
-                <DollarSign className="h-4 w-4" />
                 <span>₱0.00</span>
             </div>
         </div>
