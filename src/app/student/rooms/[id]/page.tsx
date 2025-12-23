@@ -83,9 +83,6 @@ function StudentRoomPageContent() {
             </Link>
              <h1 className="flex-1 text-xl font-semibold tracking-tight">
                 {room.name}
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    by {chairperson?.name || '...'}
-                </span>
             </h1>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} activeView={activeView} />}
