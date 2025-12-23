@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -88,7 +89,7 @@ export function JoinRoomButton() {
 
       const chairpersonRef = doc(db, 'users', chairpersonId);
       const chairpersonSnap = await getDoc(chairpersonRef);
-      const chairpersonName = chairpersonSnap.exists() ? chairpersonSnap.data().name : 'Unknown Chairperson';
+      const chairpersonDisplayName = chairpersonSnap.exists() ? chairpersonSnap.data().displayName : 'Unknown Chairperson';
 
       const roomName = roomData?.name || 'the room';
       
@@ -120,7 +121,7 @@ export function JoinRoomButton() {
       batch.set(studentRoomRef, { 
         roomId, 
         chairpersonId,
-        chairpersonName,
+        displayName: chairpersonDisplayName, // Use displayName
         roomName: roomName,
         roomDescription: roomData?.description || '',
         joinedAt: serverTimestamp(),

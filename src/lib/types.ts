@@ -1,3 +1,4 @@
+
 import { Timestamp } from 'firebase/firestore';
 
 export type User = {
@@ -24,7 +25,7 @@ export type JoinedRoom = {
   id: string; // The doc ID is the roomId
   roomId: string;
   chairpersonId: string;
-  chairpersonName: string;
+  displayName: string; // Changed from chairpersonName
   roomName: string;
   roomDescription: string;
   joinedAt: Timestamp;

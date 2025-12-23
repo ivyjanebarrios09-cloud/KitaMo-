@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import { JoinRoomButton } from '@/components/student/join-room-button';
 import { ArrowLeft, ArrowRight, FileText, MoreHorizontal, LogOut, Loader2 } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -38,9 +39,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
 function DisplayName({ userId }: { userId: string }) {
-    const { data: user, loading } = useDoc<UserData>(`users/${userId}`);
+    const { data: user, loading } = useDoc<UserData>(userId ? `users/${userId}` : null);
     if (loading) {
-        return <Skeleton className="h-4 w-32" />;
+        return <Skeleton className="h-4 w-32 inline-block" />;
     }
     return <>{user?.name || 'Unknown'}</>;
 }
@@ -95,9 +96,7 @@ function RoomCard({ room }: { room: JoinedRoom }) {
             <CardTitle>{room.roomName}</CardTitle>
             <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
-                {room.chairpersonName ? room.chairpersonName : (
-                    room.chairpersonId ? <DisplayName userId={room.chairpersonId} /> : "Unknown"
-                )}
+                {room.displayName ? room.displayName : <DisplayName userId={room.chairpersonId} />}
             </div>
           </CardHeader>
           <CardContent>
@@ -191,7 +190,7 @@ export default function StudentRoomsPage() {
     <div className="space-y-6">
        <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-            <Link href="/student/dashboard">
+            <Link href="/student/dashboard" className="sm:hidden">
             <Button variant="outline" size="icon" className="h-10 w-10">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Back</span>
