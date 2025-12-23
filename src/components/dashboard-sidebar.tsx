@@ -52,31 +52,33 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
     : studentNavLinks;
 
   return (
-    <aside className="hidden border-r bg-background sm:flex sm:flex-col justify-start">
-      <nav className="flex flex-col items-center gap-4 px-2 py-4">
-        <Link href={`/${role}/dashboard`}>
-            <Logo className="h-12 w-auto" />
-        </Link>
-        <TooltipProvider>
-          {navLinks.map((link) => (
-            <Tooltip key={link.label}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={link.href(params)}
-                  className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
-                    pathname === link.href(params) && 'bg-accent text-accent-foreground'
-                  )}
-                >
-                  {link.icon}
-                  <span className="sr-only">{link.label}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{link.label}</TooltipContent>
-            </Tooltip>
-          ))}
-        </TooltipProvider>
-      </nav>
-    </aside>
+    <div className="fixed inset-y-0 left-0 z-20 flex h-full flex-col border-r">
+        <aside className="hidden border-r bg-background sm:flex sm:flex-col">
+        <nav className="flex flex-col items-center gap-4 px-2 py-4">
+            <Link href={`/${role}/dashboard`}>
+                <Logo className="h-12 w-auto" />
+            </Link>
+            <TooltipProvider>
+            {navLinks.map((link) => (
+                <Tooltip key={link.label}>
+                <TooltipTrigger asChild>
+                    <Link
+                    href={link.href(params)}
+                    className={cn(
+                        'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
+                        pathname === link.href(params) && 'bg-accent text-accent-foreground'
+                    )}
+                    >
+                    {link.icon}
+                    <span className="sr-only">{link.label}</span>
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{link.label}</TooltipContent>
+                </Tooltip>
+            ))}
+            </TooltipProvider>
+        </nav>
+        </aside>
+    </div>
   );
 }
