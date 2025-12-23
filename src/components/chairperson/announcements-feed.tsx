@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { HandCoins, Landmark, Heart, Users } from 'lucide-react';
+import { HandCoins, Landmark, Heart, Users, Megaphone } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Post = (Expense & { type: 'expense' }) | (FundDeadline & { type: 'deadline' });
@@ -23,11 +23,17 @@ function PostCard({ post, chairpersonId, roomId, role }: { post: Post; chairpers
     const postDate = 'dueDate' in post ? post.dueDate : post.date;
 
     const seenByQuery = useMemo(() => {
+        if (!db || !chairpersonId || !roomId || !post.id) return null;
         return query(collection(db, `users/${chairpersonId}/rooms/${roomId}/${postType}s/${post.id}/seenBy`));
     }, [db, chairpersonId, roomId, postType, post.id]);
 
     const { data: seenBy, loading: seenByLoading } = useCollection<SeenRecord>(seenByQuery);
-    const { data: members, loading: membersLoading } = useCollection<RoomMember>(query(collection(db, `users/${chairpersonId}/rooms/${roomId}/members`)));
+
+    const membersQuery = useMemo(() => {
+        if (!db || !chairpersonId || !roomId) return null;
+        return query(collection(db, `users/${chairpersonId}/rooms/${roomId}/members`));
+    }, [db, chairpersonId, roomId]);
+    const { data: members, loading: membersLoading } = useCollection<RoomMember>(membersQuery);
 
     const hasSeen = useMemo(() => {
         if (!user || !seenBy) return false;
@@ -119,10 +125,12 @@ export function AnnouncementsFeed({ chairpersonId, roomId, role }: Announcements
   const db = useFirestore();
 
   const expensesQuery = useMemo(() => {
+    if (!db || !chairpersonId || !roomId) return null;
     return query(collection(db, `users/${chairpersonId}/rooms/${roomId}/expenses`));
   }, [db, chairpersonId, roomId]);
 
   const deadlinesQuery = useMemo(() => {
+    if (!db || !chairpersonId || !roomId) return null;
     return query(collection(db, `users/${chairpersonId}/rooms/${roomId}/deadlines`));
   }, [db, chairpersonId, roomId]);
 

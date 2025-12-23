@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   collection,
   query,
@@ -25,6 +25,9 @@ export function useCollection<T = DocumentData>(
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | null>(null);
+  
+  const queryPathRef = useRef<string | null>(null);
+
 
   const memoizedQuery = useMemo(() => {
     if (!pathOrQuery) return null;
@@ -40,6 +43,16 @@ export function useCollection<T = DocumentData>(
         setLoading(false);
         return;
     };
+    
+    // This is a safeguard. The primary fix should be memoizing the query
+    // in the component that calls this hook.
+    const newQueryPath = (memoizedQuery as any)._query.path.segments.join('/');
+    if (newQueryPath === queryPathRef.current && data !== null) {
+      setLoading(false);
+      return;
+    }
+    queryPathRef.current = newQueryPath;
+
 
     setLoading(true);
 
@@ -71,7 +84,7 @@ export function useCollection<T = DocumentData>(
     );
 
     return () => unsubscribe();
-  }, [memoizedQuery]);
+  }, [memoizedQuery, data]);
 
   return { data, loading, error };
 }
