@@ -10,8 +10,8 @@ export function Logo({
     <Image
       src="/image/logo.png"
       alt="KitaMo! Logo"
-      width={110}
-      height={28}
+      width={220}
+      height={56}
       className={cn(className)}
       priority
       {...props}
