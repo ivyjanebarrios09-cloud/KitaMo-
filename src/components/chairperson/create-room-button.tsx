@@ -31,6 +31,7 @@ import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { Label } from '../ui/label';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Room name is required.' }),
@@ -171,22 +172,13 @@ export function CreateRoomButton() {
                   </FormItem>
                 )}
               />
-               <FormField
-                control={form.control}
-                name="creator"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Created By</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled
-                        {...field}
-                        value={user?.displayName || 'Loading...'}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label>Created By</Label>
+                <Input
+                  disabled
+                  value={user?.displayName || 'Loading...'}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
