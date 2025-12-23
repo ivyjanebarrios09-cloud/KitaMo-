@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import type { Expense, Room, Payment, FundDeadline, RoomMember, User as UserData } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
