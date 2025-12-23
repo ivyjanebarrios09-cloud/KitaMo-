@@ -20,7 +20,7 @@ export default function AuthLayout({
       </div>
       <div className="mb-8">
         <Link href="/">
-          <Logo className="h-20 w-auto" />
+          <Logo className="h-28 w-auto" />
         </Link>
       </div>
       {children}
