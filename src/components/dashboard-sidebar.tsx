@@ -53,7 +53,7 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
     : studentNavLinks;
 
   return (
-    <aside className="hidden border-r bg-background sm:flex sm:flex-col">
+    <aside className="hidden border-r bg-background sm:flex sm:flex-col justify-between">
       <nav className="flex flex-col items-center gap-4 px-2 py-4">
         <Link href={`/${role}/dashboard`}>
             <Logo className="h-12 w-auto" />
@@ -78,7 +78,7 @@ export function DashboardSidebar({ role }: { role: 'chairperson' | 'student' }) 
           ))}
         </TooltipProvider>
       </nav>
-      <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
+      <nav className="flex flex-col items-center gap-4 px-2 py-4">
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
