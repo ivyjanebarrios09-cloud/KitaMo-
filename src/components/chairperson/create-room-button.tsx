@@ -176,7 +176,7 @@ export function CreateRoomButton() {
                 <Label>Created By</Label>
                 <Input
                   disabled
-                  value={user?.displayName || 'Loading...'}
+                  value={user?.displayName || ''}
                 />
               </div>
             </div>
