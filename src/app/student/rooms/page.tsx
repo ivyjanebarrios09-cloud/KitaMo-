@@ -2,11 +2,11 @@
 'use client';
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
-import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, MoreHorizontal, LogOut, Loader2 } from 'lucide-react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { useMemo } from 'react';
-import { collection, query } from 'firebase/firestore';
-import type { JoinedRoom } from '@/lib/types';
+import { useMemo, useState } from 'react';
+import { collection, query, doc, writeBatch } from 'firebase/firestore';
+import type { JoinedRoom, User as UserData } from '@/lib/types';
 import Link from 'next/link';
 import {
   Card,
@@ -17,32 +17,125 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 function RoomCard({ room }: { room: JoinedRoom }) {
+    const { user } = useUser();
+    const db = useFirestore();
+    const { toast } = useToast();
+    const [isLeaving, setIsLeaving] = useState(false);
+    const [showLeaveAlert, setShowLeaveAlert] = useState(false);
+
+    const handleLeaveRoom = async () => {
+        if (!user) return;
+        setIsLeaving(true);
+
+        try {
+            const batch = writeBatch(db);
+
+            // Remove student from the room's members subcollection
+            const memberRef = doc(db, 'users', room.chairpersonId, 'rooms', room.roomId, 'members', user.uid);
+            batch.delete(memberRef);
+
+            // Remove room reference from the student's joinedRooms subcollection
+            const studentRoomRef = doc(db, 'users', user.uid, 'joinedRooms', room.roomId);
+            batch.delete(studentRoomRef);
+
+            await batch.commit();
+
+            toast({
+                title: 'You have left the room',
+                description: `You are no longer a member of "${room.roomName}".`,
+            });
+        } catch (error) {
+            console.error('Error leaving room:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not leave the room. Please try again.',
+            });
+        } finally {
+            setIsLeaving(false);
+            setShowLeaveAlert(false);
+        }
+    };
+
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{room.roomName}</CardTitle>
-          <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
-           <div className="text-sm text-muted-foreground pt-2">
+      <>
+        <Card>
+          <CardHeader>
+            <CardTitle>{room.roomName}</CardTitle>
+            <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
+            <div className="text-sm text-muted-foreground pt-2">
                 Created by:{' '}
                 <span className="font-medium text-foreground">{room.chairpersonName || 'Unknown'}</span>
             </div>
-        </CardHeader>
-        <CardContent>
-            {/* Content can be used for other stats in the future */}
-        </CardContent>
-         <CardFooter className="flex justify-end">
-          <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
-              <Button variant="outline" size="sm">
-                  View Room
-                  <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+          </CardHeader>
+          <CardContent>
+              {/* Content can be used for other stats in the future */}
+          </CardContent>
+           <CardFooter className="flex justify-between items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowLeaveAlert(true)} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Leave Room
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
+                <Button variant="outline" size="sm">
+                    View Room
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+        <AlertDialog open={showLeaveAlert} onOpenChange={setShowLeaveAlert}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to leave this room?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        You will lose access to all financial data for this room and will need to be re-invited or use the join code again.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isLeaving}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={handleLeaveRoom}
+                        disabled={isLeaving}
+                        className="bg-destructive hover:bg-destructive/90"
+                    >
+                        {isLeaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+                        Leave Room
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
@@ -87,7 +180,7 @@ export default function StudentRoomsPage() {
        <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
             <Link href="/student/dashboard">
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="h-10 w-10">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Back</span>
             </Button>
