@@ -8,13 +8,13 @@ import {
   CardTitle,
   CardContent,
 } from '@/components/ui/card';
-import { ArrowLeft, Users, Wallet, PiggyBank, DollarSign } from 'lucide-react';
+import { ArrowLeft, Users, Wallet, PiggyBank, DollarSign, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useUser, useCollection, useFirestore } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { collection, query, getDocs } from 'firebase/firestore';
-import type { Room } from '@/lib/types'; // Using the simplified Room type
+import type { Room, FundDeadline } from '@/lib/types'; // Using the simplified Room type
 import {
   Table,
   TableBody,
@@ -29,7 +29,8 @@ import { format } from 'date-fns';
 // Simplified types for dashboard aggregation
 type AggregatedExpense = { id: string; type: 'expense'; date: string; title: string; amount: number; roomId: string; roomName: string; };
 type AggregatedPayment = { id: string; type: 'payment'; date: string; note?: string; amount: number; roomId: string; roomName: string; };
-type Transaction = AggregatedExpense | AggregatedPayment;
+type AggregatedDeadline = { id: string; type: 'deadline'; dueDate: string; title: string; amountPerStudent: number; roomId: string; roomName: string; };
+type Transaction = AggregatedExpense | AggregatedPayment | AggregatedDeadline;
 type RoomMember = { id: string; userId: string; };
 
 
@@ -71,8 +72,9 @@ export default function ChairpersonDashboard() {
   const [aggregatedData, setAggregatedData] = useState<{
     expenses: AggregatedExpense[];
     payments: AggregatedPayment[];
+    deadlines: AggregatedDeadline[];
     members: RoomMember[];
-  }>({ expenses: [], payments: [], members: [] });
+  }>({ expenses: [], payments: [], deadlines: [], members: [] });
   const [aggregationLoading, setAggregationLoading] = useState(true);
 
   useEffect(() => {
@@ -82,19 +84,22 @@ export default function ChairpersonDashboard() {
         setAggregationLoading(true);
         const expensesPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/expenses`)).then(snap => ({ snap, room })));
         const paymentsPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/payments`)).then(snap => ({ snap, room })));
+        const deadlinesPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/deadlines`)).then(snap => ({ snap, room })));
         const membersPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/members`)));
 
-        const [expenseResults, paymentResults, memberSnapshots] = await Promise.all([
+        const [expenseResults, paymentResults, deadlineResults, memberSnapshots] = await Promise.all([
              Promise.all(expensesPromises),
              Promise.all(paymentsPromises),
+             Promise.all(deadlinesPromises),
              Promise.all(membersPromises)
         ]);
 
         const allExpenses = expenseResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'expense', roomId: room.id, roomName: room.name } as AggregatedExpense)));
         const allPayments = paymentResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'payment', roomId: room.id, roomName: room.name } as AggregatedPayment)));
+        const allDeadlines = deadlineResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({ ...doc.data(), id: doc.id, type: 'deadline', roomId: room.id, roomName: room.name } as AggregatedDeadline)));
         const allMembers = memberSnapshots.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id } as RoomMember)));
         
-        setAggregatedData({ expenses: allExpenses, payments: allPayments, members: allMembers });
+        setAggregatedData({ expenses: allExpenses, payments: allPayments, deadlines: allDeadlines, members: allMembers });
         setAggregationLoading(false);
     };
 
@@ -111,8 +116,12 @@ export default function ChairpersonDashboard() {
     const collected = aggregatedData.payments.reduce((sum, p) => sum + p.amount, 0);
     const expenses = aggregatedData.expenses.reduce((sum, e) => sum + e.amount, 0);
 
-    const combined: Transaction[] = [...aggregatedData.expenses, ...aggregatedData.payments];
-    combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const combined: Transaction[] = [...aggregatedData.expenses, ...aggregatedData.payments, ...aggregatedData.deadlines];
+    combined.sort((a, b) => {
+        const dateA = new Date('date' in a ? a.date : a.dueDate).getTime();
+        const dateB = new Date('date' in b ? b.date : b.dueDate).getTime();
+        return dateB - dateA;
+    });
     
     return {
       totalCollected: collected,
@@ -200,12 +209,18 @@ export default function ChairpersonDashboard() {
                             <TableCell colSpan={5} className="text-center">No transactions yet.</TableCell>
                         </TableRow>
                     )}
-                    {!loading && recentTransactions.map((tx) => (
-                        <TableRow key={tx.id}>
+                    {!loading && recentTransactions.map((tx) => {
+                        const date = 'date' in tx ? tx.date : tx.dueDate;
+                        const amount = tx.type === 'deadline' ? tx.amountPerStudent : tx.amount;
+                        const description = tx.type === 'payment' ? tx.note : tx.title;
+                        const badgeVariant = tx.type === 'expense' ? 'destructive' : (tx.type === 'deadline' ? 'outline' : 'secondary');
+
+                        return(
+                        <TableRow key={`${tx.type}-${tx.id}`}>
                             <TableCell>
-                                <Badge variant={tx.type === 'expense' ? 'destructive' : 'secondary'}>{tx.type}</Badge>
+                                <Badge variant={badgeVariant}>{tx.type}</Badge>
                             </TableCell>
-                            <TableCell>{format(new Date(tx.date), 'PP')}</TableCell>
+                            <TableCell>{format(new Date(date), 'PP')}</TableCell>
                             <TableCell>
                                 <Button variant="link" asChild className="p-0 h-auto font-normal">
                                     <Link href={`/chairperson/rooms/${tx.roomId}`}>
@@ -213,12 +228,12 @@ export default function ChairpersonDashboard() {
                                     </Link>
                                 </Button>
                             </TableCell>
-                            <TableCell>{'title' in tx ? tx.title : tx.note}</TableCell>
+                            <TableCell>{description}</TableCell>
                             <TableCell className="text-right font-medium">
-                                 {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(tx.amount)}
+                                 {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)}
                             </TableCell>
                         </TableRow>
-                    ))}
+                    )})}
                 </TableBody>
             </Table>
         </CardContent>
