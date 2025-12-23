@@ -198,7 +198,7 @@ export function GenerateStatements({ room, roomId }: { room: Room, roomId: strin
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
+            <CardFooter className="flex flex-wrap justify-end gap-2">
               <Button variant="outline" disabled={option.key !== 'expense_summary'}>View Statement</Button>
               <Button 
                 variant="outline" 
