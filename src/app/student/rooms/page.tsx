@@ -1,3 +1,4 @@
+
 'use client';
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
