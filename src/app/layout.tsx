@@ -6,6 +6,9 @@ import { FirebaseClientProvider } from '@/firebase';
 export const metadata: Metadata = {
   title: 'KitaMo!',
   description: 'Streamline financial management for your group.',
+  icons: {
+    icon: '/image/favicon.ico',
+  },
 };
 
 export default function RootLayout({
