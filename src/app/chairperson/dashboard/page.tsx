@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { useUser, useCollection, useFirestore } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { collection, query, getDocs } from 'firebase/firestore';
-import type { Room, Expense, Payment, RoomMember } from '@/lib/types';
+import type { Room } from '@/lib/types'; // Using the simplified Room type
 import {
   Table,
   TableBody,
@@ -25,6 +25,13 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+
+// Simplified types for dashboard aggregation
+type AggregatedExpense = { id: string; type: 'expense'; date: string; title: string; amount: number; roomId: string; roomName: string; };
+type AggregatedPayment = { id: string; type: 'payment'; date: string; note?: string; amount: number; roomId: string; roomName: string; };
+type Transaction = AggregatedExpense | AggregatedPayment;
+type RoomMember = { id: string; userId: string; };
+
 
 function FinancialSummaryCard({ title, value, icon, loading }: { title: string, value: string | number, icon: React.ReactNode, loading: boolean }) {
   return (
@@ -60,8 +67,8 @@ export default function ChairpersonDashboard() {
   const { data: rooms, loading: roomsLoading } = useCollection<Room>(roomsQuery);
   
   const [aggregatedData, setAggregatedData] = useState<{
-    expenses: (Expense & { type: 'expense' })[];
-    payments: (Payment & { type: 'payment' })[];
+    expenses: AggregatedExpense[];
+    payments: AggregatedPayment[];
     members: RoomMember[];
   }>({ expenses: [], payments: [], members: [] });
   const [aggregationLoading, setAggregationLoading] = useState(true);
@@ -71,25 +78,29 @@ export default function ChairpersonDashboard() {
 
     const aggregateData = async () => {
         setAggregationLoading(true);
-        const expensesPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/expenses`)));
-        const paymentsPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/payments`)));
+        const expensesPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/expenses`)).then(snap => ({ snap, room })));
+        const paymentsPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/payments`)).then(snap => ({ snap, room })));
         const membersPromises = rooms.map(room => getDocs(collection(db, `users/${user.uid}/rooms/${room.id}/members`)));
 
-        const [expenseSnapshots, paymentSnapshots, memberSnapshots] = await Promise.all([
+        const [expenseResults, paymentResults, memberSnapshots] = await Promise.all([
              Promise.all(expensesPromises),
              Promise.all(paymentsPromises),
-             Promise.all(membersPromises)
+             Promise.all(memberSnapshots)
         ]);
 
-        const allExpenses = expenseSnapshots.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'expense'} as Expense & { type: 'expense' })));
-        const allPayments = paymentSnapshots.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'payment'} as Payment & { type: 'payment' })));
+        const allExpenses = expenseResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'expense', roomId: room.id, roomName: room.name } as AggregatedExpense)));
+        const allPayments = paymentResults.flatMap(({ snap, room }) => snap.docs.map(doc => ({...doc.data(), id: doc.id, type: 'payment', roomId: room.id, roomName: room.name } as AggregatedPayment)));
         const allMembers = memberSnapshots.flatMap(snap => snap.docs.map(doc => ({...doc.data(), id: doc.id } as RoomMember)));
         
         setAggregatedData({ expenses: allExpenses, payments: allPayments, members: allMembers });
         setAggregationLoading(false);
     };
 
-    aggregateData();
+    if (rooms.length > 0) {
+      aggregateData();
+    } else {
+      setAggregationLoading(false);
+    }
 
   }, [rooms, db, user?.uid]);
 
@@ -98,7 +109,7 @@ export default function ChairpersonDashboard() {
     const collected = aggregatedData.payments.reduce((sum, p) => sum + p.amount, 0);
     const expenses = aggregatedData.expenses.reduce((sum, e) => sum + e.amount, 0);
 
-    const combined = [...aggregatedData.expenses, ...aggregatedData.payments];
+    const combined: Transaction[] = [...aggregatedData.expenses, ...aggregatedData.payments];
     combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
     return {
@@ -171,6 +182,7 @@ export default function ChairpersonDashboard() {
                     <TableRow>
                     <TableHead>Type</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Room</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
@@ -178,12 +190,12 @@ export default function ChairpersonDashboard() {
                 <TableBody>
                     {loading && Array.from({length: 5}).map((_, i) => (
                         <TableRow key={i}>
-                            <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
+                            <TableCell colSpan={5}><Skeleton className="h-5 w-full" /></TableCell>
                         </TableRow>
                     ))}
                     {!loading && recentTransactions.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={4} className="text-center">No transactions yet.</TableCell>
+                            <TableCell colSpan={5} className="text-center">No transactions yet.</TableCell>
                         </TableRow>
                     )}
                     {!loading && recentTransactions.map((tx) => (
@@ -192,7 +204,14 @@ export default function ChairpersonDashboard() {
                                 <Badge variant={tx.type === 'expense' ? 'destructive' : 'secondary'}>{tx.type}</Badge>
                             </TableCell>
                             <TableCell>{format(new Date(tx.date), 'PP')}</TableCell>
-                            <TableCell>{tx.title || (tx as Payment).note}</TableCell>
+                            <TableCell>
+                                <Button variant="link" asChild className="p-0 h-auto font-normal">
+                                    <Link href={`/chairperson/rooms/${tx.roomId}`}>
+                                        {tx.roomName}
+                                    </Link>
+                                </Button>
+                            </TableCell>
+                            <TableCell>{'title' in tx ? tx.title : tx.note}</TableCell>
                             <TableCell className="text-right font-medium">
                                  {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(tx.amount)}
                             </TableCell>
