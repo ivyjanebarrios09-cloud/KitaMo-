@@ -25,12 +25,6 @@ const navigationCards = [
     icon: <Users className="h-8 w-8 text-primary" />,
     href: '/student/rooms',
   },
-  {
-    title: 'Account Settings',
-    description: 'Update your profile and notification preferences.',
-    icon: <Settings className="h-8 w-8 text-primary" />,
-    href: '/settings',
-  },
 ];
 
 export default function StudentDashboard() {
