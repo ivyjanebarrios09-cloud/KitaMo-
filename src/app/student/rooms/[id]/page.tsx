@@ -81,14 +81,12 @@ function StudentRoomPageContent() {
                 <span className="sr-only">Back</span>
               </Button>
             </Link>
-            <div className="flex flex-1 items-baseline gap-3">
-                 <h1 className="shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                    {room.name}
-                </h1>
-                <p className="text-sm text-muted-foreground truncate">
+             <h1 className="flex-1 whitespace-nowrap text-xl font-semibold tracking-tight">
+                {room.name}
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
                     by {chairperson?.name || '...'}
-                </p>
-            </div>
+                </span>
+            </h1>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} activeView={activeView} />}
       </div>
