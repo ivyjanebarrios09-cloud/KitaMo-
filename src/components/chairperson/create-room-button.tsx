@@ -171,12 +171,22 @@ export function CreateRoomButton() {
                   </FormItem>
                 )}
               />
-               <FormItem>
-                <FormLabel>Created By:</FormLabel>
-                <FormControl>
-                  <Input disabled defaultValue={user?.displayName || 'Loading...'} />
-                </FormControl>
-              </FormItem>
+               <FormField
+                control={form.control}
+                name="creator"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Created By</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        {...field}
+                        value={user?.displayName || 'Loading...'}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
