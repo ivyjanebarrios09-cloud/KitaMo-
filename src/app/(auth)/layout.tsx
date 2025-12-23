@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout({
   children,
@@ -7,7 +9,15 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/50">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-muted/50 p-4">
+      <div className="absolute left-4 top-4 md:left-8 md:top-8">
+        <Link href="/">
+          <Button variant="outline" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back to Home</span>
+          </Button>
+        </Link>
+      </div>
       <div className="mb-8">
         <Link href="/">
           <Logo className="h-20 w-auto" />
