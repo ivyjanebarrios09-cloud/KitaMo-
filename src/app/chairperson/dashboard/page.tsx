@@ -34,6 +34,8 @@ type RoomMember = { id: string; userId: string; };
 
 
 function FinancialSummaryCard({ title, value, icon, loading }: { title: string, value: string | number, icon: React.ReactNode, loading: boolean }) {
+  const isStudentCount = title === 'Total Students';
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -45,7 +47,7 @@ function FinancialSummaryCard({ title, value, icon, loading }: { title: string, 
           <Skeleton className="h-8 w-3/4" />
         ) : (
           <div className="text-2xl font-bold">
-            {typeof value === 'number'
+            {typeof value === 'number' && !isStudentCount
               ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(value)
               : value}
           </div>
