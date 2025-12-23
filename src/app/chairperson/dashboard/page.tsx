@@ -8,7 +8,7 @@ import {
   CardTitle,
   CardContent,
 } from '@/components/ui/card';
-import { ArrowLeft, Users, Wallet, PiggyBank, DollarSign, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, Users, Wallet, PiggyBank, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useUser, useCollection, useFirestore } from '@/firebase';
@@ -171,7 +171,7 @@ export default function ChairpersonDashboard() {
         <FinancialSummaryCard 
             title="Net Balance"
             value={totalCollected - totalExpenses}
-            icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            icon={<span className="text-muted-foreground font-bold">₱</span>}
             loading={loading}
         />
         <FinancialSummaryCard 

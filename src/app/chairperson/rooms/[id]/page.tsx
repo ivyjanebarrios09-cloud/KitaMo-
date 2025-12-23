@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useUser, useFirestore } from '@/firebase';
 import type { Expense, Payment, RoomMember } from '@/lib/types';
-import { DollarSign, Users, CreditCard } from 'lucide-react';
+import { Users, CreditCard } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -103,7 +103,7 @@ export default function RoomDashboardPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <DollarSign className="h-8 w-8 text-primary" />
+        <span className="text-2xl font-bold text-primary">₱</span>
         <h1 className="text-2xl font-bold">Dashboard</h1>
       </div>
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 mt-4">
@@ -117,7 +117,7 @@ export default function RoomDashboardPage({
             'en-PH',
             { style: 'currency', currency: 'PHP' }
           ).format(totalExpenses)} spent`}
-          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+          icon={<span className="text-muted-foreground font-bold">₱</span>}
           loading={loading}
         />
         <RoomStatCard
