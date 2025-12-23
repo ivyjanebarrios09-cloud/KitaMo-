@@ -3,7 +3,7 @@
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
 import { ArrowLeft, ArrowRight, FileText, MoreHorizontal, LogOut, Loader2 } from 'lucide-react';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { useMemo, useState } from 'react';
 import { collection, query, doc, writeBatch } from 'firebase/firestore';
 import type { JoinedRoom, User as UserData } from '@/lib/types';
@@ -43,6 +43,11 @@ function RoomCard({ room }: { room: JoinedRoom }) {
     const { toast } = useToast();
     const [isLeaving, setIsLeaving] = useState(false);
     const [showLeaveAlert, setShowLeaveAlert] = useState(false);
+    
+    // Fallback fetch in case chairpersonName is missing from older documents
+    const { data: chairperson, loading: chairpersonLoading } = useDoc<UserData>(
+      !room.chairpersonName && room.chairpersonId ? `users/${room.chairpersonId}` : null
+    );
 
     const handleLeaveRoom = async () => {
         if (!user) return;
@@ -78,6 +83,8 @@ function RoomCard({ room }: { room: JoinedRoom }) {
         }
     };
 
+    const displayName = room.chairpersonName || chairperson?.name;
+
     return (
       <>
         <Card>
@@ -85,7 +92,11 @@ function RoomCard({ room }: { room: JoinedRoom }) {
             <CardTitle>{room.roomName}</CardTitle>
             <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
-                <span className="font-medium text-foreground">{room.chairpersonName || 'Unknown'}</span>
+                {chairpersonLoading ? (
+                    <Skeleton className="h-4 w-32 inline-block" />
+                ) : (
+                   <span>{displayName || 'Unknown'}</span>
+                )}
             </div>
           </CardHeader>
           <CardContent>
@@ -151,7 +162,8 @@ function RoomsSkeleton() {
           <CardContent>
              {/* Adding empty content to match layout */}
           </CardContent>
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex justify-between items-center">
+             <Skeleton className="h-9 w-9" />
              <Skeleton className="h-9 w-28" />
           </CardFooter>
         </Card>
