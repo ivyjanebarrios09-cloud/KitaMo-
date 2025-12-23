@@ -85,7 +85,6 @@ function RoomCard({ room }: { room: JoinedRoom }) {
             <CardTitle>{room.roomName}</CardTitle>
             <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
-                Created by:{' '}
                 <span className="font-medium text-foreground">{room.chairpersonName || 'Unknown'}</span>
             </div>
           </CardHeader>
