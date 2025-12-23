@@ -24,9 +24,9 @@ export default function ChairpersonRoomLayout({
     params 
 }: { 
     children: React.ReactNode,
-    params: { id: string } 
+    params: Promise<{ id: string }> 
 }) {
-  const { id } = params;
+  const { id } = React.use(params);
   const { user, loading: userLoading } = useUser();
   const { data: room, loading: roomLoading } = useDoc<Room>(user ? `users/${user.uid}/rooms/${id}` : null);
 
