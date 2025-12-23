@@ -19,6 +19,7 @@ import {
   AreaChart,
   LayoutDashboard,
   Megaphone,
+  Calculator,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from './logo';
@@ -37,6 +38,7 @@ const navLinks: NavLink[] = [
   // Chairperson
   { href: () => '/chairperson/dashboard', icon: <Home />, label: 'Dashboard', isMain: true, requiredRole: 'chairperson' },
   { href: () => '/chairperson/rooms', icon: <Users />, label: 'Rooms', isMain: true, requiredRole: 'chairperson' },
+  { href: () => '/chairperson/calculator', icon: <Calculator />, label: 'Calculator', isMain: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}`, icon: <Home />, label: 'Room Dashboard', isRoomView: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}/announcements`, icon: <Megaphone />, label: 'Announcements', isRoomView: true, requiredRole: 'chairperson' },
   { href: (params) => `/chairperson/rooms/${params.id}/expenses`, icon: <Wallet />, label: 'Expenses', isRoomView: true, requiredRole: 'chairperson' },
