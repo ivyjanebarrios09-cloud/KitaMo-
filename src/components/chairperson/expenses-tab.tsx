@@ -176,7 +176,7 @@ function PaymentRow({ payment }: { payment: Payment }) {
             <TableCell>{format(new Date(payment.date), 'PP')}</TableCell>
             <TableCell>{payment.note}</TableCell>
             <TableCell className="text-right">
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(payment.amount)}
+                {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(payment.amount)}
             </TableCell>
         </TableRow>
     )
