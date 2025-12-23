@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -80,15 +81,18 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
               <span className="sr-only">Back</span>
             </Button>
           </Link>
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
+          <h1 className="text-xl font-semibold tracking-tight">
             {room.name}
           </h1>
-          <Badge variant="outline" className="ml-auto sm:ml-0">
-            {chairperson?.name || '...'}
-          </Badge>
+          <div className="ml-auto flex items-center gap-2">
+             <Badge variant="outline">
+                {chairperson?.name || '...'}
+             </Badge>
+          </div>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
       </div>
     </div>
   );
 }
+
