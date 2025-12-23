@@ -8,10 +8,10 @@ export function Logo({
 }: ImgHTMLAttributes<HTMLImageElement>) {
   return (
     <Image
-      src="/image/logo.png"
+      src="/image/logoooo.png"
       alt="KitaMo! Logo"
-      width={550}
-      height={140}
+      width={1100}
+      height={280}
       className={cn(className)}
       priority
       {...props}
