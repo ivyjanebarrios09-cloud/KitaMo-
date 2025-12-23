@@ -9,9 +9,9 @@ export default function ChairpersonLayout({
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <DashboardHeader />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <DashboardSidebar role="chairperson" />
-        <main className="flex-1 p-4 sm:px-6 sm:py-4">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 sm:px-6 sm:py-4">{children}</main>
       </div>
     </div>
   );
