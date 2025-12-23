@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { addDoc, collection, serverTimestamp, writeBatch, doc } from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useDoc } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -32,6 +32,8 @@ import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { Label } from '../ui/label';
+import type { User as UserData } from '@/lib/types';
+import { Skeleton } from '../ui/skeleton';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Room name is required.' }),
@@ -53,6 +55,8 @@ export function CreateRoomButton() {
   const { toast } = useToast();
   const db = useFirestore();
   const { user } = useUser();
+  const { data: userProfile, loading: profileLoading } = useDoc<UserData>(user ? `users/${user.uid}` : null);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -174,10 +178,14 @@ export function CreateRoomButton() {
               />
               <div className="space-y-2">
                 <Label>Created By</Label>
-                <Input
-                  disabled
-                  value={user?.displayName || ''}
-                />
+                {profileLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                ) : (
+                    <Input
+                    disabled
+                    value={userProfile?.name || 'Loading...'}
+                    />
+                )}
               </div>
             </div>
             <DialogFooter>
