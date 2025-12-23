@@ -5,8 +5,8 @@ import { useUser } from '@/firebase';
 import { Megaphone } from 'lucide-react';
 import { AnnouncementsFeed } from '@/components/chairperson/announcements-feed';
 
-export default function AnnouncementsPage({ params }: { params: { id: string } }) {
-  const { id: roomId } = params;
+export default function AnnouncementsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: roomId } = React.use(params);
   const { user } = useUser();
 
   if (!user) {
