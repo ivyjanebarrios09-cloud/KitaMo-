@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 function RoomHeaderSkeleton() {
     return (
         <div className="flex items-center gap-4">
-            <Skeleton className="h-7 w-7" />
+            <Skeleton className="h-7 w-7 rounded-full" />
             <Skeleton className="h-6 w-48" />
             <Skeleton className="ml-auto h-6 w-32" />
         </div>
@@ -29,12 +29,10 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
   
   const { user: studentUser, loading: studentLoading } = useAuthUser();
 
-  // Fetch the room document using the chairpersonId and roomId
   const { data: room, loading: roomLoading } = useDoc<Room>(
     chairpersonId ? `users/${chairpersonId}/rooms/${roomId}` : null
   );
 
-  // Fetch the chairperson's user profile
   const { data: chairperson, loading: chairpersonLoading } = useDoc<User>(
     chairpersonId ? `users/${chairpersonId}` : null
   );
@@ -72,22 +70,22 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
 
 
   return (
-    <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
-      <div className="mx-auto grid w-full max-w-6xl gap-2">
-        <div className="flex items-center gap-4">
-          <Link href="/student/rooms">
-            <Button variant="outline" size="icon" className="h-7 w-7">
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
-          </Link>
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-            {room.name}
-          </h1>
-          <Badge variant="outline" className="ml-auto sm:ml-0 flex items-center gap-2">
-            <UserIcon className="h-3 w-3" />
-            <span>{chairperson?.name || '...'}</span>
-          </Badge>
+    <div className="flex min-h-full flex-1 flex-col gap-4 bg-muted/40 md:gap-8">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-6 px-4">
+        <div className="flex items-center gap-4 pt-4">
+            <Link href="/student/rooms">
+              <Button variant="outline" size="icon" className="h-7 w-7">
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+              </Button>
+            </Link>
+            <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
+              {room.name}
+            </h1>
+            <Badge variant="outline" className="ml-auto sm:ml-0 flex items-center gap-2">
+              <UserIcon className="h-3 w-3" />
+              <span>{chairperson?.name || '...'}</span>
+            </Badge>
         </div>
         {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
       </div>

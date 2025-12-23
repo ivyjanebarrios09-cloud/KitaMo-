@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -261,7 +262,7 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
     }
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 mt-4">
+    <div className="flex flex-row gap-8 mt-4">
         <nav className="flex flex-col gap-2">
             {navItems.map(item => (
                 <Button 
