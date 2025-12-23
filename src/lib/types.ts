@@ -24,6 +24,7 @@ export type JoinedRoom = {
   id: string; // The doc ID is the roomId
   roomId: string;
   chairpersonId: string;
+  chairpersonName: string;
   roomName: string;
   roomDescription: string;
   joinedAt: Timestamp;

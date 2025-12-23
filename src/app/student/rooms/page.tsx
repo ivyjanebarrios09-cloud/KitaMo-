@@ -3,10 +3,10 @@
 
 import { JoinRoomButton } from '@/components/student/join-room-button';
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
-import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { useUser, useFirestore, useCollection } from '@/firebase';
 import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
-import type { JoinedRoom, User as UserData } from '@/lib/types';
+import type { JoinedRoom } from '@/lib/types';
 import Link from 'next/link';
 import {
   Card,
@@ -21,7 +21,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function RoomCard({ room }: { room: JoinedRoom }) {
-    const { data: chairperson, loading } = useDoc<UserData>(room.chairpersonId ? `users/${room.chairpersonId}` : null);
 
     return (
       <Card>
@@ -30,11 +29,7 @@ function RoomCard({ room }: { room: JoinedRoom }) {
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
            <div className="text-sm text-muted-foreground pt-2">
                 Created by:{' '}
-                {loading ? (
-                    <Skeleton className="h-4 w-32 inline-block" />
-                ) : (
-                    <span className="font-medium text-foreground">{chairperson?.name || 'Unknown'}</span>
-                )}
+                <span className="font-medium text-foreground">{room.chairpersonName || 'Unknown'}</span>
             </div>
         </CardHeader>
         <CardContent>

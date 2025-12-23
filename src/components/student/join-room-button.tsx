@@ -81,10 +81,16 @@ export function JoinRoomButton() {
 
       const { chairpersonId, roomId } = roomCodeSnap.data();
 
-      // 2. Get the room details to show the name in the toast
+      // 2. Get the room and chairperson details
       const roomRef = doc(db, 'users', chairpersonId, 'rooms', roomId);
       const roomSnap = await getDoc(roomRef);
-      const roomName = roomSnap.exists() ? roomSnap.data().name : 'the room';
+      const roomData = roomSnap.exists() ? roomSnap.data() : null;
+
+      const chairpersonRef = doc(db, 'users', chairpersonId);
+      const chairpersonSnap = await getDoc(chairpersonRef);
+      const chairpersonName = chairpersonSnap.exists() ? chairpersonSnap.data().name : 'Unknown Chairperson';
+
+      const roomName = roomData?.name || 'the room';
       
       // 3. Add the student to the room's members subcollection
       const memberRef = doc(db, 'users', chairpersonId, 'rooms', roomId, 'members', user.uid);
@@ -114,8 +120,9 @@ export function JoinRoomButton() {
       batch.set(studentRoomRef, { 
         roomId, 
         chairpersonId,
+        chairpersonName,
         roomName: roomName,
-        roomDescription: roomSnap.exists() ? roomSnap.data().description : '',
+        roomDescription: roomData?.description || '',
         joinedAt: serverTimestamp(),
       });
 
