@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, DollarSign, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, Users, TrendingUp } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
@@ -42,7 +42,7 @@ export default function Home() {
   
   const features = [
     {
-      icon: <DollarSign className="h-8 w-8 text-primary" />,
+      icon: <span className="h-8 w-8 text-primary text-3xl font-bold flex items-center justify-center">₱</span>,
       title: 'Effortless Expense Tracking',
       description: 'Easily post expenses and fund deadlines. Keep everyone in the loop with automated calculations and clear summaries.',
     },
