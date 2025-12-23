@@ -1,9 +1,11 @@
 'use client';
+import React from 'react';
 import { StudentsTab } from '@/components/chairperson/students-tab';
 import { useUser } from '@/firebase';
 import { Users } from 'lucide-react';
 
-export default function StudentsPage({ params }: { params: { id: string } }) {
+export default function StudentsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const { user } = useUser();
   return (
     <div>
@@ -11,7 +13,7 @@ export default function StudentsPage({ params }: { params: { id: string } }) {
             <Users className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold">Students</h1>
         </div>
-      {user && <StudentsTab roomId={params.id} chairpersonId={user.uid} />}
+      {user && <StudentsTab roomId={id} chairpersonId={user.uid} />}
     </div>
   );
 }
