@@ -1,5 +1,5 @@
 import { DashboardHeader } from '@/components/dashboard-header';
-import { Settings } from 'lucide-react';
+import { DashboardSidebar } from '@/components/dashboard-sidebar';
 
 export default function StudentLayout({
   children,
@@ -9,7 +9,10 @@ export default function StudentLayout({
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <DashboardHeader />
-      <main className="flex-1 p-4 sm:px-6 sm:py-4">{children}</main>
+      <div className="flex flex-1">
+        <DashboardSidebar role="student" />
+        <main className="flex-1 p-4 sm:px-6 sm:py-4">{children}</main>
+      </div>
     </div>
   );
 }

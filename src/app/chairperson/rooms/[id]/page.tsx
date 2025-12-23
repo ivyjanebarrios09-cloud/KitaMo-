@@ -1,82 +1,95 @@
 'use client';
 
-import Link from 'next/link';
 import React from 'react';
-import { useDoc, useUser } from '@/firebase';
-import type { Room } from '@/lib/types';
-import { ChevronLeft } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import {
+  DollarSign,
+  Users,
+  CreditCard,
+  ClipboardList,
+  AreaChart,
+} from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RoomDetails } from '@/components/chairperson/room-details';
-import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
-function RoomHeaderSkeleton() {
-    return (
-        <div className="flex items-center gap-4">
-            <Skeleton className="h-7 w-7 rounded-full" />
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="ml-auto h-6 w-32" />
-        </div>
-    )
-}
-
-
-export default function ChairpersonRoomPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
-  const { user, loading: userLoading } = useUser();
-  const { data: room, loading: roomLoading } = useDoc<Room>(user ? `users/${user.uid}/rooms/${id}` : null);
-
-  const loading = userLoading || roomLoading;
-
-  if (loading) {
-      return (
-         <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
-            <div className="mx-auto grid w-full max-w-6xl gap-2">
-               <RoomHeaderSkeleton />
-                <div className="mt-4">
-                    <Skeleton className="h-96 w-full" />
-                </div>
-            </div>
-        </div>
-      )
-  }
-
-  if (!room) {
-    return (
-       <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
-        <div className="mx-auto grid w-full max-w-6xl gap-2 text-center">
-            <h1 className="text-2xl font-bold">Room not found</h1>
-            <p className="text-muted-foreground">This room may have been deleted or you may not have permission to view it.</p>
-             <div className="mt-4">
-                 <Link href="/chairperson/rooms">
-                    <Button variant="outline">Go back to Rooms</Button>
-                </Link>
-             </div>
-        </div>
-      </div>
-    )
-  }
-
+export default function RoomDashboardPage({ params }: { params: { id: string } }) {
+  const roomId = params.id;
 
   return (
-    <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
-      <div className="mx-auto grid w-full max-w-6xl gap-2">
+    <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <Link href="/chairperson/rooms">
-            <Button variant="outline" size="icon" className="h-7 w-7">
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
-          </Link>
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-            {room.name}
-          </h1>
-          <Badge variant="outline" className="ml-auto sm:ml-0 font-mono">
-            CODE: {room.code}
-          </Badge>
+            <DollarSign className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold">Dashboard</h1>
         </div>
-        <RoomDetails room={room} roomId={id} />
-      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">Awaiting calculations</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Students</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">No members yet</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Paid</CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">No payments recorded</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₱0.00</div>
+              <p className="text-xs text-muted-foreground">No outstanding members</p>
+            </CardContent>
+          </Card>
+        </div>
+         <div className="mt-4">
+          <Card>
+            <CardHeader>
+                <CardTitle>Expense Analytics</CardTitle>
+                 <p className="text-sm text-muted-foreground">
+                    Visualize your room's spending patterns over time.
+                  </p>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex items-center gap-4">
+                     <AreaChart className="h-10 w-10 text-primary" />
+                     <div>
+                         <h3 className="font-semibold">Expense Graphs</h3>
+                         <p className="text-sm text-muted-foreground">View detailed monthly and yearly expense charts.</p>
+                     </div>
+                     <Link href={`/chairperson/rooms/${roomId}/graphs`} className="ml-auto">
+                        <Button>View Graphs</Button>
+                     </Link>
+                 </div>
+            </CardContent>
+          </Card>
+        </div>
     </div>
   );
 }

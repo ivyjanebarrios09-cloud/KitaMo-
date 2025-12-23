@@ -1,4 +1,5 @@
 import { DashboardHeader } from '@/components/dashboard-header';
+import { DashboardSidebar } from '@/components/dashboard-sidebar';
 
 export default function ChairpersonLayout({
   children,
@@ -8,7 +9,10 @@ export default function ChairpersonLayout({
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <DashboardHeader />
-      <main className="flex-1 p-4 sm:px-6 sm:py-4">{children}</main>
+      <div className="flex flex-1">
+        <DashboardSidebar role="chairperson" />
+        <main className="flex-1 p-4 sm:px-6 sm:py-4">{children}</main>
+      </div>
     </div>
   );
 }
