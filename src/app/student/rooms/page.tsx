@@ -31,11 +31,11 @@ function RoomCard({ room }: { room: JoinedRoom }) {
         </CardHeader>
         <CardContent>
             <div className="text-sm text-muted-foreground">
-                Created by: {' '}
+                Created by:{' '}
                 {loading ? (
                     <Skeleton className="h-4 w-32 inline-block" />
                 ) : (
-                    <span>{chairperson?.name || 'Unknown'}</span>
+                    <span className="font-medium">{chairperson?.name || 'Unknown'}</span>
                 )}
             </div>
         </CardContent>
