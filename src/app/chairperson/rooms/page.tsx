@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
-import type { Room } from '@/lib/types';
+import type { Room, RoomMember } from '@/lib/types';
 import {
   Card,
   CardDescription,
@@ -18,6 +18,16 @@ import { FileText, DollarSign, Users, ArrowRight, ArrowLeft } from 'lucide-react
 import Link from 'next/link';
 
 function RoomCard({ room }: { room: Room }) {
+  const { user } = useUser();
+  const db = useFirestore();
+
+  const membersQuery = useMemo(() => {
+    if (!user) return null;
+    return query(collection(db, `users/${user.uid}/rooms/${room.id}/members`));
+  }, [db, user, room.id]);
+
+  const { data: members, loading: membersLoading } = useCollection<RoomMember>(membersQuery);
+
   return (
     <Card>
       <CardHeader>
@@ -28,7 +38,11 @@ function RoomCard({ room }: { room: Room }) {
         <div className="flex gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
-                <span>0 Students</span>
+                {membersLoading ? (
+                  <Skeleton className="h-4 w-20" />
+                ) : (
+                  <span>{members?.length || 0} Students</span>
+                )}
             </div>
             <div className="flex items-center gap-1">
                 <DollarSign className="h-4 w-4" />
