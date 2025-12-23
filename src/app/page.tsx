@@ -38,7 +38,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <header className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Logo className="h-7 w-auto" />
+          <Logo className="h-8 w-auto" />
         </Link>
         <nav className="flex items-center gap-2">
           <Button variant="ghost" asChild>
@@ -142,7 +142,7 @@ export default function Home() {
 
       <footer className="container mx-auto flex items-center justify-between px-4 py-6 md:px-6">
         <div className="flex items-center gap-2">
-          <Logo className="h-5 w-auto" />
+          <Logo className="h-6 w-auto" />
         </div>
         <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} KitaMo!. All rights reserved.
