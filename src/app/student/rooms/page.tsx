@@ -19,18 +19,21 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function RoomCard({ room }: { room: JoinedRoom }) {
-    const { data: chairperson, loading } = useDoc<UserData>(`users/${room.chairpersonId}`);
+    const { data: chairperson, loading } = useDoc<UserData>(room.chairpersonId ? `users/${room.chairpersonId}` : null);
 
     return (
       <Card>
         <CardHeader>
           <CardTitle>{room.roomName}</CardTitle>
           <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
-          {loading ? (
-            <Skeleton className="h-4 w-32 mt-2" />
-          ) : (
-             chairperson && <CardDescription className="pt-2">Created by: {chairperson.name}</CardDescription>
-          )}
+          <CardDescription className="pt-2">
+            Created by: {' '}
+            {loading ? (
+              <Skeleton className="h-4 w-32 inline-block" />
+            ) : (
+              <span>{chairperson?.name || '...'}</span>
+            )}
+          </CardDescription>
         </CardHeader>
          <CardFooter className="flex justify-end">
           <Link href={`/student/rooms/${room.roomId}?chairpersonId=${room.chairpersonId}`}>
