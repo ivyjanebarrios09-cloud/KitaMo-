@@ -37,17 +37,21 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
+function DisplayName({ userId }: { userId: string }) {
+    const { data: user, loading } = useDoc<UserData>(`users/${userId}`);
+    if (loading) {
+        return <Skeleton className="h-4 w-32" />;
+    }
+    return <>{user?.name || 'Unknown'}</>;
+}
+
+
 function RoomCard({ room }: { room: JoinedRoom }) {
     const { user } = useUser();
     const db = useFirestore();
     const { toast } = useToast();
     const [isLeaving, setIsLeaving] = useState(false);
     const [showLeaveAlert, setShowLeaveAlert] = useState(false);
-    
-    // Fallback fetch in case chairpersonName is missing from older documents
-    const { data: chairperson, loading: chairpersonLoading } = useDoc<UserData>(
-      !room.chairpersonName && room.chairpersonId ? `users/${room.chairpersonId}` : null
-    );
 
     const handleLeaveRoom = async () => {
         if (!user) return;
@@ -83,7 +87,6 @@ function RoomCard({ room }: { room: JoinedRoom }) {
         }
     };
 
-    const displayName = room.chairpersonName || chairperson?.name;
 
     return (
       <>
@@ -92,10 +95,8 @@ function RoomCard({ room }: { room: JoinedRoom }) {
             <CardTitle>{room.roomName}</CardTitle>
             <CardDescription>{room.roomDescription || 'No description provided.'}</CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
-                {chairpersonLoading ? (
-                    <Skeleton className="h-4 w-32 inline-block" />
-                ) : (
-                   <span>{displayName || 'Unknown'}</span>
+                {room.chairpersonName ? room.chairpersonName : (
+                    room.chairpersonId ? <DisplayName userId={room.chairpersonId} /> : "Unknown"
                 )}
             </div>
           </CardHeader>
