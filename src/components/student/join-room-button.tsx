@@ -35,6 +35,7 @@ import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import type { User as UserData } from '@/lib/types';
 
 const formSchema = z.object({
   code: z
@@ -89,7 +90,9 @@ export function JoinRoomButton() {
 
       const chairpersonRef = doc(db, 'users', chairpersonId);
       const chairpersonSnap = await getDoc(chairpersonRef);
-      const chairpersonDisplayName = chairpersonSnap.exists() ? chairpersonSnap.data().displayName : 'Unknown Chairperson';
+      const chairpersonData = chairpersonSnap.exists() ? (chairpersonSnap.data() as UserData) : null;
+      const chairpersonDisplayName = chairpersonData?.name || chairpersonData?.displayName || 'Unknown Chairperson';
+
 
       const roomName = roomData?.name || 'the room';
       
@@ -122,7 +125,7 @@ export function JoinRoomButton() {
         roomId, 
         chairpersonId,
         displayName: chairpersonDisplayName, // Use displayName
-        roomName: roomName,
+        roomName: roomData?.name || 'Unnamed Room',
         roomDescription: roomData?.description || '',
         joinedAt: serverTimestamp(),
       });
