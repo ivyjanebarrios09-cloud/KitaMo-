@@ -17,9 +17,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import type { Room } from '@/lib/types';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import type { Expense, FundDeadline, Payment } from '@/lib/types';
@@ -27,16 +26,16 @@ import { format } from 'date-fns';
 import { GeneratePersonalStatement } from './generate-personal-statement';
 import { PiggyBank, Wallet, LayoutDashboard, CalendarCheck, FileText } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
-import { cn } from '@/lib/utils';
+
+export type ActiveView = 'dashboard' | 'expenses' | 'deadlines' | 'statements';
 
 interface StudentRoomDetailsProps {
     room: Room;
     roomId: string;
     chairpersonId: string;
     studentId: string;
+    activeView: ActiveView;
 }
-
-type ActiveView = 'dashboard' | 'expenses' | 'deadlines' | 'statements';
 
 const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'My Dashboard' },
@@ -45,9 +44,8 @@ const navItems = [
     { id: 'statements', icon: FileText, label: 'Statements' },
 ] as const;
 
-export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: StudentRoomDetailsProps) {
+export function StudentRoomDetails({ room, roomId, chairpersonId, studentId, activeView }: StudentRoomDetailsProps) {
     const db = useFirestore();
-    const [activeView, setActiveView] = useState<ActiveView>('dashboard');
 
     const expensesQuery = useMemo(() => {
         if (!chairpersonId || !roomId) return null;
@@ -262,23 +260,8 @@ export function StudentRoomDetails({ room, roomId, chairpersonId, studentId }: S
     }
 
   return (
-    <div className="flex flex-row gap-8 mt-4">
-        <nav className="flex flex-col gap-2">
-            {navItems.map(item => (
-                <Button 
-                    key={item.id}
-                    variant={activeView === item.id ? 'secondary' : 'ghost'}
-                    className="justify-start gap-3 w-full"
-                    onClick={() => setActiveView(item.id)}
-                >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                </Button>
-            ))}
-        </nav>
-        <div className="flex-1">
-           {renderContent()}
-        </div>
+    <div className="flex-1 mt-4">
+        {renderContent()}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft, User as UserIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -22,10 +22,12 @@ function RoomHeaderSkeleton() {
     )
 }
 
-export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: roomId } = React.use(params);
+function StudentRoomPageContent() {
+  const params = React.use(Promise.resolve(useParams() as { id: string }));
+  const roomId = params.id;
   const searchParams = useSearchParams();
   const chairpersonId = searchParams.get('chairpersonId');
+  const activeView = (searchParams.get('view') as any) || 'dashboard';
   
   const { user: studentUser, loading: studentLoading } = useAuthUser();
 
@@ -41,7 +43,7 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
 
   if (loading) {
       return (
-         <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+         <div className="flex min-h-full flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
             <div className="mx-auto grid w-full max-w-6xl gap-2">
                <RoomHeaderSkeleton />
                 <div className="mt-4">
@@ -54,7 +56,7 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
 
   if (!room || !chairpersonId) {
     return (
-       <div className="flex min-h-[calc(100vh-theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+       <div className="flex min-h-full flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
         <div className="mx-auto grid w-full max-w-6xl gap-2 text-center">
             <h1 className="text-2xl font-bold">Room not found</h1>
             <p className="text-muted-foreground">This room may not exist or the link is incomplete. Please ensure you have the correct link from the 'My Rooms' page.</p>
@@ -70,7 +72,7 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
 
 
   return (
-    <div className="flex min-h-full flex-1 flex-col gap-4 bg-muted/40 md:gap-8">
+    <div className="flex min-h-full flex-1 flex-col gap-4 bg-muted/40">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-6 px-4">
         <div className="flex items-center gap-4 pt-4">
             <Link href="/student/rooms">
@@ -87,8 +89,16 @@ export default function StudentRoomPage({ params }: { params: Promise<{ id: stri
               <span>{chairperson?.name || '...'}</span>
             </Badge>
         </div>
-        {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} />}
+        {studentUser && <StudentRoomDetails room={room} roomId={roomId} chairpersonId={chairpersonId} studentId={studentUser.uid} activeView={activeView} />}
       </div>
     </div>
+  );
+}
+
+export default function StudentRoomPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<RoomHeaderSkeleton />}>
+      <StudentRoomPageContent />
+    </Suspense>
   );
 }
